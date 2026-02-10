@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="CodeArena.API/CodeArena.API.csproj" />
+  <Project Path="CodeArena.Application/CodeArena.Application.csproj" />
+  <Project Path="CodeArena.Domain/CodeArena.Domain.csproj" />
+  <Project Path="CodeArena.Infrastructure/CodeArena.Infrastructure.csproj" />
+</Solution>

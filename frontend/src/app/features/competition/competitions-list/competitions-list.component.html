@@ -1,0 +1,122 @@
+<main class="page-container">
+  <div class="competitions-header">
+    <h1 class="page-title">{{ 'competitions.title' | translate }}</h1>
+    @if (isModerator) {
+      <a routerLink="/competitions/new" class="btn btn-primary">
+        + {{ 'admin.competition.create_title' | translate }}
+      </a>
+    }
+  </div>
+
+  <!-- Barre de recherche -->
+  <div class="search-bar">
+    <input
+      type="text"
+      class="form-input"
+      [placeholder]="'competitions.search_placeholder' | translate"
+      [formControl]="searchControl"
+      [attr.aria-label]="'competitions.search' | translate" />
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-state" role="status" aria-live="polite">
+      <div class="spinner"></div>
+      <p>{{ 'common.loading' | translate }}</p>
+    </div>
+  } @else if (error) {
+    <div class="error-state" role="alert">
+      <p>{{ error | translate }}</p>
+    </div>
+  } @else if (filteredCompetitions.length === 0) {
+    <div class="empty-state">
+      <div class="empty-state__icon">🏆</div>
+      <p>{{ 'competitions.empty' | translate }}</p>
+    </div>
+  } @else {
+
+    <div class="table-wrapper">
+      <table class="competitions-table">
+        <thead>
+          <tr>
+            <th>{{ 'competitions.col.name' | translate }}</th>
+            <th class="col-status">{{ 'competitions.col.status' | translate }}</th>
+            <th class="col-date">{{ 'competitions.col.startDate' | translate }}</th>
+            <th class="col-date">{{ 'competitions.col.endDate' | translate }}</th>
+            <th class="col-problems">{{ 'competitions.col.problems' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (comp of pagedCompetitions; track comp.id) {
+            <tr class="comp-row"
+                [class.comp-row--ongoing]="comp.status === 'Ongoing'"
+                [class.comp-row--upcoming]="comp.status === 'Upcoming'">
+              <td class="col-name">
+                <div class="name-cell">
+                  @if (comp.status === 'Ongoing') {
+                    <span class="status-dot status-dot--live" aria-hidden="true"></span>
+                  } @else if (comp.status === 'Upcoming') {
+                    <span class="status-dot status-dot--upcoming" aria-hidden="true"></span>
+                  }
+                  <a [routerLink]="['/competitions', comp.id]" class="comp-link">
+                    {{ comp.name }}
+                  </a>
+                </div>
+              </td>
+              <td class="col-status">
+                <span [class]="getBadgeClass(comp.status)">
+                  {{ getStatusKey(comp.status) | translate }}
+                </span>
+              </td>
+              <td class="col-date">{{ comp.startDate | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td class="col-date">{{ comp.endDate | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td class="col-problems">{{ comp.problemCount }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages > 1) {
+      <div class="pagination" role="navigation" aria-label="Pagination">
+        <button
+          class="pagination__btn"
+          [disabled]="currentPage === 1"
+          (click)="goToPage(currentPage - 1)"
+          [attr.aria-label]="'common.prev_page' | translate">
+          ‹
+        </button>
+
+        @for (page of getPages(); track $index) {
+          @if (page === '...') {
+            <span class="pagination__ellipsis">…</span>
+          } @else {
+            <button
+              class="pagination__btn"
+              [class.pagination__btn--active]="page === currentPage"
+              (click)="goToPage(+page)"
+              [attr.aria-current]="page === currentPage ? 'page' : null">
+              {{ page }}
+            </button>
+          }
+        }
+
+        <button
+          class="pagination__btn"
+          [disabled]="currentPage === totalPages"
+          (click)="goToPage(currentPage + 1)"
+          [attr.aria-label]="'common.next_page' | translate">
+          ›
+        </button>
+      </div>
+
+      <p class="pagination-info">
+        {{ 'competitions.showing' | translate }}
+        {{ pageStart }}–{{ pageEnd }}
+        {{ 'competitions.of' | translate }}
+        {{ filteredCompetitions.length }}
+      </p>
+    }
+
+  }
+</main>

@@ -1,0 +1,212 @@
+<!-- Loading state -->
+@if (isLoading) {
+  <div class="page-container">
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>{{ 'common.loading' | translate }}</p>
+    </div>
+  </div>
+}
+
+<!-- Error state -->
+@else if (error) {
+  <div class="page-container">
+    <div class="error-state">
+      <p>{{ error | translate }}</p>
+      <a routerLink="/" class="btn btn-secondary">{{ 'common.backHome' | translate }}</a>
+    </div>
+  </div>
+}
+
+<!-- Data state -->
+@else if (problem) {
+  <div class="page-container problem-page">
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+      <a routerLink="/">{{ 'NAV.HOME' | translate }}</a>
+      <span>/</span>
+      <a [routerLink]="['/competitions', problem.competitionId]">{{ problem.competitionName }}</a>
+      <span>/</span>
+      <span>{{ problem.title }}</span>
+    </nav>
+
+    <!-- Header -->
+    <header class="problem-header">
+      <div class="problem-meta">
+        <span class="badge" [class]="'badge-' + problem.competitionStatus.toLowerCase()">
+          {{ ('competition.status.' + problem.competitionStatus.toLowerCase()) | translate }}
+        </span>
+        <span class="points-badge">{{ problem.points }} pts</span>
+        @if (problem.solvedByCurrentUser) {
+          <span class="badge badge-solved">{{ 'competition.problems.solved' | translate }}</span>
+        }
+      </div>
+      <div class="problem-title-row">
+        <h1 class="problem-title">{{ problem.title }}</h1>
+        @if (isModerator) {
+          <a [routerLink]="['/problems', problem.id, 'edit']" class="btn btn-secondary btn--sm">
+            ✏ {{ 'admin.problem.edit_btn' | translate }}
+          </a>
+        }
+      </div>
+
+      <!-- Stats -->
+      <div class="problem-stats">
+        <div class="stat">
+          <span class="stat-value">{{ problem.totalSubmissions }}</span>
+          <span class="stat-label">{{ 'problem.stats.total' | translate }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">{{ problem.acceptedSubmissions }}</span>
+          <span class="stat-label">{{ 'problem.stats.accepted' | translate }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">{{ problem.acceptanceRate }}%</span>
+          <span class="stat-label">{{ 'problem.stats.rate' | translate }}</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="problem-layout">
+
+      <!-- Left column: problem body + download -->
+      <main class="problem-body-col">
+        <!-- Rendered Markdown body -->
+        <div class="markdown-body" [innerHTML]="problem.body | markdown"></div>
+
+        <!-- Download input.txt -->
+        <div class="input-download">
+          <a [href]="getInputUrl()" download="input.txt" class="btn btn-secondary">
+            ⬇ {{ 'problem.download' | translate }}
+          </a>
+        </div>
+      </main>
+
+      <!-- Right column: submission form -->
+      <aside class="problem-submit-col">
+        <div class="submit-card card">
+          <h2 class="card-title">{{ 'problem.submit.title' | translate }}</h2>
+
+          <!-- Already solved message -->
+          @if (problem.solvedByCurrentUser || submitResult?.status === 'Accepted') {
+            <div class="alert alert-success">
+              ✓ {{ 'problem.submit.alreadySolved' | translate }}
+            </div>
+          }
+
+          <!-- Competition not ongoing -->
+          @else if (problem.competitionStatus !== 'Ongoing') {
+            <div class="alert alert-info">
+              {{ 'problem.submit.notOngoing' | translate }}
+            </div>
+          }
+
+          <!-- Submission form -->
+          @else {
+            <!-- Result feedback -->
+            @if (submitResult && submitResult.status === 'Wrong') {
+              <div class="alert alert-error">
+                ✗ {{ 'problem.submit.wrong' | translate }}
+              </div>
+            }
+            @if (submitError) {
+              <div class="alert alert-error">{{ submitError | translate }}</div>
+            }
+
+            <form (ngSubmit)="onSubmit()">
+              <!-- Result file -->
+              <div class="form-group">
+                <label for="resultFile" class="form-label">
+                  {{ 'problem.submit.resultLabel' | translate }}
+                  <span class="required">*</span>
+                </label>
+                <input
+                  id="resultFile"
+                  type="file"
+                  accept=".txt"
+                  class="form-control file-input"
+                  [disabled]="isFormDisabled"
+                  (change)="onResultFileChange($event)"
+                  required
+                />
+                <small class="form-hint">{{ 'problem.submit.resultHint' | translate }}</small>
+              </div>
+
+              <!-- Source file -->
+              <div class="form-group">
+                <label for="sourceFile" class="form-label">
+                  {{ 'problem.submit.sourceLabel' | translate }}
+                </label>
+                <input
+                  id="sourceFile"
+                  type="file"
+                  accept=".c,.cpp,.py,.java,.js"
+                  class="form-control file-input"
+                  [disabled]="isFormDisabled"
+                  (change)="onSourceFileChange($event)"
+                />
+                <small class="form-hint">{{ 'problem.submit.sourceHint' | translate }}</small>
+              </div>
+
+              <!-- Submit button -->
+              <button
+                type="submit"
+                class="btn btn-primary btn-full"
+                [disabled]="isFormDisabled || !resultFile"
+              >
+                @if (isSubmitting) {
+                  <span class="spinner-sm"></span>
+                  {{ 'problem.submit.judging' | translate }}
+                } @else {
+                  {{ 'problem.submit.btn' | translate }}
+                }
+              </button>
+            </form>
+          }
+        </div>
+      </aside>
+    </div>
+
+    <!-- Submission history -->
+    <section class="submission-history">
+      <h2 class="section-title">{{ 'problem.history.title' | translate }}</h2>
+
+      @if (historyLoading) {
+        <div class="spinner-sm"></div>
+      } @else if (submissions.length === 0) {
+        <p class="empty-history">{{ 'problem.history.empty' | translate }}</p>
+      } @else {
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>{{ 'problem.history.colDate' | translate }}</th>
+                <th>{{ 'problem.history.colStatus' | translate }}</th>
+                <th>{{ 'problem.history.colFirst' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (sub of submissions; track sub.id) {
+                <tr>
+                  <td>{{ sub.submittedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                  <td>
+                    <span class="badge" [class]="sub.status === 'Accepted' ? 'badge-accepted' : 'badge-wrong'">
+                      {{ sub.status }}
+                    </span>
+                  </td>
+                  <td>
+                    @if (sub.isFirstAccepted) {
+                      <span class="first-ac-badge" title="{{ 'problem.history.firstAC' | translate }}">★ 1er AC</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+  </div>
+}

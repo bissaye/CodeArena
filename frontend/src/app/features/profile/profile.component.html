@@ -1,0 +1,253 @@
+<div class="page-container">
+  <!-- Loading -->
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <span>{{ 'common.loading' | translate }}</span>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (!isLoading && error) {
+    <div class="error-state">
+      <p>{{ error | translate }}</p>
+      <button class="btn btn-secondary" (click)="loadProfile()">{{ 'common.retry' | translate }}</button>
+    </div>
+  }
+
+  <!-- Profile -->
+  @if (!isLoading && profile) {
+    <div class="profile-layout">
+
+      <!-- Left column: card profil -->
+      <aside class="profile-card">
+        <!-- Avatar -->
+        <div class="profile-card__avatar-wrapper">
+          @if (getAvatarSrc()) {
+            <img [src]="getAvatarSrc()" [alt]="profile.username" class="profile-card__avatar" />
+          } @else {
+            <div class="profile-card__avatar profile-card__avatar--placeholder">
+              {{ getInitials() }}
+            </div>
+          }
+
+          @if (isOwner && !avatarFile) {
+            <label class="avatar-upload-btn" title="{{ 'profile.change_avatar' | translate }}">
+              <input type="file" accept="image/jpeg,image/png" (change)="onAvatarSelected($event)" hidden />
+              ✏️
+            </label>
+          }
+        </div>
+
+        <!-- Avatar preview actions -->
+        @if (avatarFile) {
+          <div class="avatar-preview-actions">
+            <p class="avatar-preview-filename">{{ avatarFile.name }}</p>
+            @if (avatarError) {
+              <p class="form-error">{{ avatarError }}</p>
+            }
+            <div class="avatar-preview-btns">
+              <button class="btn btn-primary btn-sm" (click)="uploadAvatar()" [disabled]="isUploadingAvatar">
+                @if (isUploadingAvatar) { {{ 'common.loading' | translate }} }
+                @else { {{ 'profile.save_avatar' | translate }} }
+              </button>
+              <button class="btn btn-secondary btn-sm" (click)="cancelAvatar()" [disabled]="isUploadingAvatar">
+                {{ 'common.cancel' | translate }}
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- Username & meta -->
+        <h1 class="profile-card__username">{{ profile.username }}</h1>
+        <p class="profile-card__country">
+          <span class="flag">{{ profile.country | countryFlag }}</span> {{ profile.country }}
+          @if (profile.region) { — {{ profile.region }} }
+        </p>
+        @if (profile.school) {
+          <p class="profile-card__school">🎓 {{ profile.school }}</p>
+        }
+        <p class="profile-card__joined">
+          {{ 'profile.member_since' | translate }} {{ profile.createdAt | date:'MMM yyyy' }}
+        </p>
+
+        <!-- Scores -->
+        <div class="profile-stats">
+          <div class="profile-stat">
+            <span class="profile-stat__value">{{ profile.totalScore }}</span>
+            <span class="profile-stat__label">{{ 'profile.total_score' | translate }}</span>
+          </div>
+          <div class="profile-stat">
+            <span class="profile-stat__value">{{ profile.competitionScore }}</span>
+            <span class="profile-stat__label">{{ 'profile.competition_score' | translate }}</span>
+          </div>
+          <div class="profile-stat">
+            <span class="profile-stat__value">#{{ profile.nationalRank }}</span>
+            <span class="profile-stat__label">{{ 'profile.national_rank' | translate }}</span>
+          </div>
+        </div>
+
+        <!-- Owner actions -->
+        @if (isOwner) {
+          <div class="profile-card__actions">
+            @if (!isEditing) {
+              <button class="btn btn-primary btn-sm" (click)="openEditMode()">
+                {{ 'profile.edit_profile' | translate }}
+              </button>
+            }
+            @if (!isChangingPassword) {
+              <button class="btn btn-secondary btn-sm" (click)="openPasswordChange()">
+                {{ 'profile.change_password' | translate }}
+              </button>
+            }
+            @if (isAdmin) {
+              <a routerLink="/admin" class="btn btn-secondary btn-sm admin-link">
+                ⚙ {{ 'profile.admin_link' | translate }}
+              </a>
+            }
+          </div>
+        }
+
+        <!-- Success message -->
+        @if (saveSuccess) {
+          <p class="success-msg">{{ 'profile.save_success' | translate }}</p>
+        }
+        @if (passwordSuccess) {
+          <p class="success-msg">{{ 'profile.password_success' | translate }}</p>
+        }
+      </aside>
+
+      <!-- Right column -->
+      <main class="profile-main">
+
+        <!-- Edit form -->
+        @if (isOwner && isEditing) {
+          <section class="profile-section">
+            <h2 class="profile-section__title">{{ 'profile.edit_profile' | translate }}</h2>
+            <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="profile-form">
+              <div class="form-group">
+                <label class="form-label">{{ 'profile.country' | translate }} <span class="required">*</span></label>
+                <select formControlName="country" class="form-input">
+                  @for (c of countries; track c.code) {
+                    <option [value]="c.nameFr">{{ c.nameFr }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">{{ 'profile.region' | translate }}</label>
+                <input formControlName="region" class="form-input" type="text"
+                       list="profile-regions-list"
+                       [placeholder]="'profile.region_placeholder' | translate" />
+                <datalist id="profile-regions-list">
+                  @for (r of cameroonRegions; track r) {
+                    <option [value]="r">
+                  }
+                </datalist>
+              </div>
+              <div class="form-group">
+                <label class="form-label">{{ 'profile.school' | translate }}</label>
+                <input formControlName="school" class="form-input" type="text"
+                       list="profile-schools-list"
+                       [placeholder]="'profile.school_placeholder' | translate" />
+                <datalist id="profile-schools-list">
+                  @for (s of schoolSuggestions; track s) {
+                    <option [value]="s">
+                  }
+                </datalist>
+              </div>
+              @if (saveError) {
+                <p class="form-error">{{ saveError }}</p>
+              }
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary" [disabled]="isSaving || profileForm.invalid">
+                  @if (isSaving) { {{ 'common.loading' | translate }} }
+                  @else { {{ 'common.save' | translate }} }
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="cancelEdit()" [disabled]="isSaving">
+                  {{ 'common.cancel' | translate }}
+                </button>
+              </div>
+            </form>
+          </section>
+        }
+
+        <!-- Change password form -->
+        @if (isOwner && isChangingPassword) {
+          <section class="profile-section">
+            <h2 class="profile-section__title">{{ 'profile.change_password' | translate }}</h2>
+            <form [formGroup]="passwordForm" (ngSubmit)="savePassword()" class="profile-form">
+              <div class="form-group">
+                <label class="form-label">{{ 'profile.current_password' | translate }}</label>
+                <input formControlName="currentPassword" class="form-input" type="password" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">{{ 'profile.new_password' | translate }}</label>
+                <input formControlName="newPassword" class="form-input" type="password" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">{{ 'profile.confirm_password' | translate }}</label>
+                <input formControlName="confirmPassword" class="form-input" type="password" />
+              </div>
+              @if (passwordError) {
+                <p class="form-error">{{ passwordError }}</p>
+              }
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary" [disabled]="isSavingPassword || passwordForm.invalid">
+                  @if (isSavingPassword) { {{ 'common.loading' | translate }} }
+                  @else { {{ 'common.save' | translate }} }
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="cancelPasswordChange()" [disabled]="isSavingPassword">
+                  {{ 'common.cancel' | translate }}
+                </button>
+              </div>
+            </form>
+          </section>
+        }
+
+        <!-- Recent activity -->
+        <section class="profile-section">
+          <h2 class="profile-section__title">{{ 'profile.recent_activity' | translate }}</h2>
+          @if (profile.recentActivity.length === 0) {
+            <p class="empty-state">{{ 'profile.no_activity' | translate }}</p>
+          } @else {
+            <div class="activity-table-wrapper">
+              <table class="activity-table">
+                <thead>
+                  <tr>
+                    <th>{{ 'profile.activity.problem' | translate }}</th>
+                    <th>{{ 'profile.activity.competition' | translate }}</th>
+                    <th>{{ 'profile.activity.status' | translate }}</th>
+                    <th>{{ 'profile.activity.date' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (a of profile.recentActivity; track a.problemId + a.submittedAt) {
+                    <tr>
+                      <td>
+                        <a [routerLink]="['/problems', a.problemId]" class="activity-link">
+                          {{ a.problemTitle }}
+                        </a>
+                      </td>
+                      <td>
+                        <a [routerLink]="['/competitions', a.competitionId]" class="activity-link activity-link--muted">
+                          {{ a.competitionName }}
+                        </a>
+                      </td>
+                      <td>
+                        <span class="submission-badge" [class]="getStatusClass(a.status)">
+                          {{ getStatusLabel(a.status) }}
+                        </span>
+                      </td>
+                      <td class="activity-date">{{ a.submittedAt | date:'dd/MM/yy HH:mm' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </section>
+
+      </main>
+    </div>
+  }
+</div>

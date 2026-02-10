@@ -1,0 +1,133 @@
+<main class="page-container">
+  <!-- Hero général -->
+  <section class="hero">
+    <h1 class="hero__title">{{ 'home.hero.title' | translate }}</h1>
+    <p class="hero__subtitle">{{ 'home.hero.subtitle' | translate }}</p>
+  </section>
+
+  @if (isLoading) {
+    <div class="loading-state" role="status" aria-live="polite">
+      <div class="spinner"></div>
+      <p>{{ 'common.loading' | translate }}</p>
+    </div>
+  } @else if (error) {
+    <div class="error-state" role="alert">
+      <p>{{ error | translate }}</p>
+    </div>
+  } @else {
+    <div class="home-grid">
+      <div class="home-grid__main">
+
+        <!-- Compétitions en cours -->
+        @if (ongoing.length > 0) {
+          <section class="section">
+            <h2 class="section__title">
+              <span class="section__live-dot" aria-hidden="true"></span>
+              {{ 'home.section.ongoing' | translate }}
+            </h2>
+
+            <!-- 1 seule : hero card pleine largeur -->
+            @if (ongoing.length === 1) {
+              <div class="hero-competition">
+                <div class="hero-competition__badge badge badge--live">
+                  {{ 'home.hero_competition.badge' | translate }}
+                </div>
+                <h3 class="hero-competition__title">
+                  <a [routerLink]="['/competitions', ongoing[0].id]" class="hero-competition__link">
+                    {{ ongoing[0].name }}
+                  </a>
+                </h3>
+                <div class="hero-competition__countdown">
+                  <app-countdown-timer [endsAt]="ongoing[0].endDate" />
+                </div>
+                <a
+                  [routerLink]="['/competitions', ongoing[0].id]"
+                  class="btn btn-primary hero-competition__cta">
+                  {{ 'home.hero_competition.cta' | translate }}
+                </a>
+              </div>
+            }
+
+            <!-- 2-3 : grille 2 colonnes -->
+            @if (ongoing.length >= 2 && ongoing.length <= 3) {
+              <div class="cards-grid cards-grid--2col">
+                @for (comp of ongoing; track comp.id) {
+                  <app-competition-card [competition]="comp" />
+                }
+              </div>
+            }
+
+            <!-- 4+ : grille 3 colonnes (auto-fill) -->
+            @if (ongoing.length >= 4) {
+              <div class="cards-grid">
+                @for (comp of ongoing; track comp.id) {
+                  <app-competition-card [competition]="comp" />
+                }
+              </div>
+            }
+          </section>
+        }
+
+        <!-- Compétitions à venir -->
+        @if (upcoming.length > 0) {
+          <section class="section">
+            <h2 class="section__title">{{ 'home.section.upcoming' | translate }}</h2>
+            <div class="cards-grid">
+              @for (comp of upcoming; track comp.id) {
+                <app-competition-card [competition]="comp" />
+              }
+            </div>
+          </section>
+        }
+
+        <!-- Compétitions passées -->
+        <section class="section">
+          <h2 class="section__title">{{ 'home.section.finished' | translate }}</h2>
+          @if (finished.length === 0) {
+            <div class="empty-state">
+              <div class="empty-state__icon">🏆</div>
+              <h3>{{ 'home.empty.finished' | translate }}</h3>
+              <p>{{ 'home.empty.finishedSub' | translate }}</p>
+            </div>
+          } @else {
+            <div class="cards-grid">
+              @for (comp of finished; track comp.id) {
+                <app-competition-card [competition]="comp" />
+              }
+            </div>
+            <div class="section__footer">
+              <a routerLink="/competitions" class="section__link">
+                {{ 'home.section.seeAll' | translate }}
+              </a>
+            </div>
+          }
+        </section>
+
+        <!-- Vide total -->
+        @if (ongoing.length === 0 && upcoming.length === 0 && finished.length === 0) {
+          <div class="empty-state">
+            <div class="empty-state__icon">⚙️</div>
+            <h3>{{ 'home.empty.noCompetitions' | translate }}</h3>
+            <p>{{ 'home.empty.noCompetitionsSub' | translate }}</p>
+          </div>
+        }
+
+      </div>
+
+      <!-- Sidebar leaderboard -->
+      <aside class="home-grid__sidebar">
+        <div class="sidebar-card">
+          <app-leaderboard-mini
+            [entries]="leaderboardEntries"
+            [title]="'home.leaderboard.title' | translate" />
+
+          @if (!leaderboardLoading) {
+            <a routerLink="/leaderboard" class="btn btn-secondary sidebar-card__cta">
+              {{ 'home.leaderboard.seeAll' | translate }}
+            </a>
+          }
+        </div>
+      </aside>
+    </div>
+  }
+</main>

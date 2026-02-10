@@ -1,0 +1,118 @@
+<div class="page-container">
+  <div class="form-page-header">
+    <h1 class="page-title">
+      {{ (isEditMode ? 'admin.problem.edit_title' : 'admin.problem.create_title') | translate }}
+    </h1>
+    <a [routerLink]="isEditMode && problemId ? ['/problems', problemId] : competitionId ? ['/competitions', competitionId] : ['/']"
+       class="btn btn-secondary">
+      {{ 'common.cancel' | translate }}
+    </a>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-state"><div class="spinner"></div></div>
+  }
+
+  @if (!isLoading) {
+    <form [formGroup]="form" (ngSubmit)="save()" class="admin-form">
+
+      @if (error) {
+        <div class="alert alert-error">{{ error | translate }}</div>
+      }
+
+      <div class="form-group">
+        <label class="form-label required">{{ 'admin.problem.field.title' | translate }}</label>
+        <input formControlName="title" class="form-input" type="text"
+               [placeholder]="'admin.problem.field.title_placeholder' | translate" />
+        @if (form.controls['title'].invalid && form.controls['title'].touched) {
+          <span class="form-error">{{ 'admin.problem.error.title_required' | translate }}</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="form-label required">{{ 'admin.problem.field.points' | translate }}</label>
+        <input formControlName="points" class="form-input form-input--short" type="number" min="1" />
+      </div>
+
+      <!-- Markdown editor + preview toggle -->
+      <div class="form-group">
+        <div class="body-header">
+          <label class="form-label required">{{ 'admin.problem.field.body' | translate }}</label>
+          <button type="button" class="btn btn-secondary btn--sm" (click)="showPreview = !showPreview">
+            {{ (showPreview ? 'admin.problem.hide_preview' : 'admin.problem.show_preview') | translate }}
+          </button>
+        </div>
+
+        <div class="editor-preview-split" [class.split-active]="showPreview">
+          <textarea formControlName="body" class="form-input body-editor"
+                    [placeholder]="'admin.problem.field.body_placeholder' | translate"
+                    rows="16"></textarea>
+
+          @if (showPreview) {
+            <div class="markdown-preview">
+              <div class="preview-label">{{ 'admin.problem.preview_label' | translate }}</div>
+              <div class="markdown-body" [innerHTML]="bodyValue | markdown"></div>
+            </div>
+          }
+        </div>
+
+        @if (form.controls['body'].invalid && form.controls['body'].touched) {
+          <span class="form-error">{{ 'admin.problem.error.body_required' | translate }}</span>
+        }
+      </div>
+
+      <!-- Input file -->
+      <div class="form-group">
+        <label class="form-label" [class.required]="!isEditMode">
+          {{ 'admin.problem.field.input_file' | translate }}
+        </label>
+        @if (isEditMode && existingFiles?.inputFileUrl) {
+          <div class="existing-file">
+            <a [href]="getFileDownloadUrl(existingFiles?.inputFileUrl)" target="_blank" class="file-link">
+              {{ 'admin.problem.download_current_input' | translate }}
+            </a>
+          </div>
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="replaceInputFile" class="checkbox" />
+            {{ 'admin.problem.replace_input' | translate }}
+          </label>
+        }
+        @if (!isEditMode || form.value['replaceInputFile']) {
+          <input type="file" class="form-input" accept=".txt" (change)="onInputFileChange($event)" />
+          <span class="form-hint">{{ 'admin.problem.field.txt_only' | translate }}</span>
+        }
+      </div>
+
+      <!-- Output file (solution) -->
+      <div class="form-group">
+        <label class="form-label" [class.required]="!isEditMode">
+          {{ 'admin.problem.field.output_file' | translate }}
+          <span class="badge badge--warning">{{ 'admin.problem.output_private' | translate }}</span>
+        </label>
+        @if (isEditMode && existingFiles?.outputFileUrl) {
+          <div class="existing-file">
+            <a [href]="getFileDownloadUrl(existingFiles?.outputFileUrl)" target="_blank" class="file-link">
+              {{ 'admin.problem.download_current_output' | translate }}
+            </a>
+          </div>
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="replaceOutputFile" class="checkbox" />
+            {{ 'admin.problem.replace_output' | translate }}
+          </label>
+        }
+        @if (!isEditMode || form.value['replaceOutputFile']) {
+          <input type="file" class="form-input" accept=".txt" (change)="onOutputFileChange($event)" />
+          <span class="form-hint">{{ 'admin.problem.field.txt_only' | translate }}</span>
+        }
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isSaving">
+          @if (isSaving) { <span class="spinner spinner--sm"></span> }
+          {{ 'common.save' | translate }}
+        </button>
+      </div>
+
+    </form>
+  }
+</div>

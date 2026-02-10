@@ -1,0 +1,78 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-card__header">
+      <a routerLink="/" class="auth-card__logo">
+        <span class="logo-dot">●</span> CodeArena
+      </a>
+      <h1 class="text-title">{{ 'AUTH.LOGIN.TITLE' | translate }}</h1>
+      <p class="auth-card__subtitle">{{ 'AUTH.LOGIN.SUBTITLE' | translate }}</p>
+    </div>
+
+    @if (error) {
+      <div class="form-error-banner" role="alert">
+        {{ error | translate }}
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="username">
+          {{ 'AUTH.LOGIN.USERNAME_LABEL' | translate }}
+        </label>
+        <input
+          id="username"
+          type="text"
+          class="form-input"
+          [class.form-input--error]="form.controls.username.invalid && form.controls.username.touched"
+          formControlName="username"
+          [placeholder]="'AUTH.LOGIN.USERNAME_PLACEHOLDER' | translate"
+          autocomplete="username"
+          autofocus
+        />
+        @if (form.controls.username.invalid && form.controls.username.touched) {
+          <span class="form-hint form-hint--error">
+            {{ 'AUTH.VALIDATION.REQUIRED' | translate }}
+          </span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">
+          {{ 'AUTH.LOGIN.PASSWORD_LABEL' | translate }}
+        </label>
+        <input
+          id="password"
+          type="password"
+          class="form-input"
+          [class.form-input--error]="form.controls.password.invalid && form.controls.password.touched"
+          formControlName="password"
+          [placeholder]="'AUTH.LOGIN.PASSWORD_PLACEHOLDER' | translate"
+          autocomplete="current-password"
+        />
+        @if (form.controls.password.invalid && form.controls.password.touched) {
+          <span class="form-hint form-hint--error">
+            {{ 'AUTH.VALIDATION.REQUIRED' | translate }}
+          </span>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary btn--full"
+        [disabled]="isLoading"
+      >
+        @if (isLoading) {
+          <span class="btn__spinner"></span>
+        }
+        {{ (isLoading ? 'AUTH.LOGIN.LOADING' : 'AUTH.LOGIN.SUBMIT') | translate }}
+      </button>
+    </form>
+
+    <p class="auth-card__footer">
+      {{ 'AUTH.LOGIN.NO_ACCOUNT' | translate }}
+      <a routerLink="/register" class="auth-card__link">
+        {{ 'AUTH.LOGIN.REGISTER_LINK' | translate }}
+      </a>
+    </p>
+  </div>
+</div>

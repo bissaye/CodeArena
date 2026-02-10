@@ -1,0 +1,39 @@
+<div class="competition-card"
+     [class.competition-card--live]="isLive"
+     [class.competition-card--upcoming]="isUpcoming"
+     [class.competition-card--finished]="isFinished"
+     [routerLink]="isFinished || isLive ? ['/competitions', competition.id] : null">
+
+  @if (isLive) {
+    <div class="competition-card__status-dot" aria-hidden="true"></div>
+    <span class="competition-card__badge competition-card__badge--live">{{ 'competition.status.ongoing' | translate }}</span>
+  }
+  @if (isUpcoming) {
+    <span class="competition-card__badge competition-card__badge--upcoming">{{ 'competition.status.upcoming' | translate }}</span>
+  }
+  @if (isFinished) {
+    <span class="competition-card__badge competition-card__badge--finished">{{ 'competition.status.finished' | translate }}</span>
+  }
+
+  <h3 class="competition-card__title">{{ competition.name }}</h3>
+
+  <div class="competition-card__meta">
+    <span>📅 {{ competition.startDate | date:'dd MMM yyyy, HH:mm' }} WAT</span>
+    <span>⏱ {{ formatDuration() }}</span>
+    <span>🧩 {{ competition.problemCount }} {{ 'competition.problems.label' | translate }}</span>
+  </div>
+
+  @if (isLive) {
+    <div class="competition-card__timer">
+      <span class="competition-card__timer-label">{{ 'competition.endsIn' | translate }}</span>
+      <app-countdown-timer [endsAt]="competition.endDate" />
+    </div>
+  }
+
+  @if (isUpcoming) {
+    <div class="competition-card__timer">
+      <span class="competition-card__timer-label">{{ 'competition.startsIn' | translate }}</span>
+      <app-countdown-timer [endsAt]="competition.startDate" />
+    </div>
+  }
+</div>

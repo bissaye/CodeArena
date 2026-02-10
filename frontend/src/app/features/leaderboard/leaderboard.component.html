@@ -1,0 +1,207 @@
+<div class="page-container">
+  <div class="leaderboard-header">
+    <h1 class="page-title">{{ 'leaderboard.title' | translate }}</h1>
+    @if (page) {
+      <p class="refresh-hint">
+        {{ 'leaderboard.refreshed_at' | translate }} {{ page.refreshedAt | date:'HH:mm:ss' }}
+        &nbsp;·&nbsp; {{ page.total }} {{ 'leaderboard.programmers' | translate }}
+      </p>
+    }
+  </div>
+
+  <!-- Filters -->
+  <form [formGroup]="filtersForm" (ngSubmit)="applyFilters()" class="filters-panel">
+    <div class="filters-row">
+      <div class="form-group">
+        <label class="form-label">{{ 'leaderboard.filter.search' | translate }}</label>
+        <input formControlName="search" class="form-input" type="text"
+               [placeholder]="'leaderboard.filter.search_placeholder' | translate" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">{{ 'leaderboard.filter.country' | translate }}</label>
+        <select formControlName="country" class="form-input">
+          <option value="">{{ 'leaderboard.filter.all_countries' | translate }}</option>
+          @for (c of countries; track c.code) {
+            <option [value]="c.nameFr">{{ c.nameFr }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">{{ 'leaderboard.filter.region' | translate }}</label>
+        <input formControlName="region" class="form-input" type="text"
+               list="lb-regions-list"
+               [placeholder]="'leaderboard.filter.region_placeholder' | translate" />
+        <datalist id="lb-regions-list">
+          @for (r of cameroonRegions; track r) {
+            <option [value]="r">
+          }
+        </datalist>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">{{ 'leaderboard.filter.school' | translate }}</label>
+        <input formControlName="school" class="form-input" type="text"
+               list="lb-schools-list"
+               [placeholder]="'leaderboard.filter.school_placeholder' | translate" />
+        <datalist id="lb-schools-list">
+          @for (s of schoolSuggestions; track s) {
+            <option [value]="s">
+          }
+        </datalist>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">{{ 'leaderboard.filter.competition' | translate }}</label>
+        <select formControlName="competitionId" class="form-input">
+          <option value="">{{ 'leaderboard.filter.all_competitions' | translate }}</option>
+          @for (c of competitions; track c.id) {
+            <option [value]="c.id">{{ c.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group score-range">
+        <label class="form-label">{{ 'leaderboard.filter.score_range' | translate }}</label>
+        <div class="score-inputs">
+          <input formControlName="scoreMin" class="form-input" type="number" min="0" placeholder="Min" />
+          <span class="score-sep">—</span>
+          <input formControlName="scoreMax" class="form-input" type="number" min="0" placeholder="Max" />
+        </div>
+      </div>
+    </div>
+
+    <div class="filters-footer">
+      <label class="competition-only-label" title="{{ 'leaderboard.filter.competition_only_tooltip' | translate }}">
+        <input type="checkbox" formControlName="competitionOnly" class="checkbox" />
+        {{ 'leaderboard.filter.competition_only' | translate }}
+        <span class="tooltip-icon">?</span>
+      </label>
+
+      <div class="filter-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+          {{ 'leaderboard.filter.apply' | translate }}
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="resetFilters()" [disabled]="isLoading">
+          {{ 'leaderboard.filter.reset' | translate }}
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Loading -->
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <span>{{ 'common.loading' | translate }}</span>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (!isLoading && error) {
+    <div class="error-state">
+      <p>{{ error | translate }}</p>
+      <button class="btn btn-secondary" (click)="loadLeaderboard()">{{ 'common.retry' | translate }}</button>
+    </div>
+  }
+
+  <!-- Table -->
+  @if (!isLoading && page) {
+    @if (page.entries.length === 0) {
+      <div class="empty-state">
+        <p>{{ 'leaderboard.empty' | translate }}</p>
+      </div>
+    } @else {
+      <div class="leaderboard-table-wrapper">
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th class="col-rank">{{ 'leaderboard.col.rank' | translate }}</th>
+              <th class="col-user">{{ 'leaderboard.col.user' | translate }}</th>
+              <th class="col-country">{{ 'leaderboard.col.country' | translate }}</th>
+              <th class="col-region">{{ 'leaderboard.col.region' | translate }}</th>
+              <th class="col-score">{{ 'leaderboard.col.score' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (entry of page.entries; track entry.userId) {
+              <tr class="lb-row">
+                <td class="col-rank">
+                  <div class="rank-cell">
+                    <div class="leaderboard-row__rank-bar" [class]="getRankClass(entry.rank)"></div>
+                    <span class="leaderboard-row__rank">{{ entry.rank }}</span>
+                  </div>
+                </td>
+                <td class="col-user">
+                  <div class="user-cell">
+                    <div class="user-avatar">
+                      @if (entry.avatarUrl) {
+                        <img [src]="'/' + entry.avatarUrl" [alt]="entry.username" />
+                      } @else {
+                        <span>{{ getInitials(entry.username) }}</span>
+                      }
+                    </div>
+                    <a [routerLink]="['/u', entry.username]" class="leaderboard-row__username">
+                      {{ entry.username }}
+                    </a>
+                  </div>
+                </td>
+                <td class="col-country">
+                  <span class="flag">{{ entry.country | countryFlag }}</span>
+                  {{ entry.country }}
+                </td>
+                <td class="col-region">{{ entry.region ?? '—' }}</td>
+                <td class="col-score">
+                  <span class="leaderboard-row__score">{{ entry.score }}</span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      @if (totalPages > 1) {
+        <nav class="pagination">
+          <button class="pagination__btn" (click)="goToPage(currentOffset - LIMIT)" [disabled]="currentPage === 1">
+            ‹
+          </button>
+
+          @if (currentPage > 3) {
+            <button class="pagination__btn" (click)="goToPage(0)">1</button>
+            @if (currentPage > 4) {
+              <span class="pagination__ellipsis">…</span>
+            }
+          }
+
+          @for (p of pages; track p) {
+            <button
+              class="pagination__btn"
+              [class.pagination__btn--active]="p === currentPage"
+              (click)="goToPage((p - 1) * LIMIT)">
+              {{ p }}
+            </button>
+          }
+
+          @if (currentPage < totalPages - 2) {
+            @if (currentPage < totalPages - 3) {
+              <span class="pagination__ellipsis">…</span>
+            }
+            <button class="pagination__btn" (click)="goToPage((totalPages - 1) * LIMIT)">{{ totalPages }}</button>
+          }
+
+          <button class="pagination__btn" (click)="goToPage(currentOffset + LIMIT)" [disabled]="currentPage === totalPages">
+            ›
+          </button>
+        </nav>
+      }
+
+      <p class="pagination-info">
+        {{ 'leaderboard.showing' | translate }}
+        {{ currentOffset + 1 }}–{{ currentOffset + page.entries.length }}
+        {{ 'leaderboard.of' | translate }} {{ page.total }}
+      </p>
+    }
+  }
+</div>

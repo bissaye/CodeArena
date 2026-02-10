@@ -1,0 +1,141 @@
+<!-- Loading -->
+@if (isLoading) {
+  <div class="page-container">
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>{{ 'common.loading' | translate }}</p>
+    </div>
+  </div>
+}
+
+<!-- Error -->
+@else if (error) {
+  <div class="page-container">
+    <div class="error-state">
+      <p>{{ error | translate }}</p>
+      <a routerLink="/" class="btn btn-secondary">{{ 'common.backHome' | translate }}</a>
+    </div>
+  </div>
+}
+
+<!-- Content -->
+@else {
+  <div class="page-container admin-page">
+
+    <header class="admin-header">
+      <h1 class="page-title">{{ 'admin.moderators.title' | translate }}</h1>
+      <p class="page-subtitle">{{ 'admin.moderators.subtitle' | translate }}</p>
+    </header>
+
+    <!-- Add moderator form -->
+    <div class="card admin-add-card">
+      <h2 class="card-title">{{ 'admin.moderators.add_title' | translate }}</h2>
+      <form [formGroup]="addForm" (ngSubmit)="onAdd()" class="add-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="username" class="form-label">
+              {{ 'admin.moderators.field.username' | translate }}
+              <span class="required">*</span>
+            </label>
+            <input
+              id="username"
+              type="text"
+              class="form-input"
+              [class.is-invalid]="addError"
+              formControlName="username"
+              [placeholder]="'admin.moderators.field.username_placeholder' | translate"
+              autocomplete="off"
+            />
+            @if (addError) {
+              <p class="form-error">{{ addError | translate }}</p>
+            }
+          </div>
+          <button type="submit" class="btn btn-primary" [disabled]="addForm.invalid || isSaving">
+            @if (isSaving) {
+              <span class="spinner-sm"></span>
+            } @else {
+              {{ 'admin.moderators.add_btn' | translate }}
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Moderator list -->
+    <div class="card">
+      <h2 class="card-title">
+        {{ 'admin.moderators.list_title' | translate }}
+        <span class="count-badge">{{ moderators.length }}</span>
+      </h2>
+
+      @if (moderators.length === 0) {
+        <div class="empty-state">
+          <div class="empty-state__icon">👥</div>
+          <h3>{{ 'admin.moderators.empty' | translate }}</h3>
+          <p>{{ 'admin.moderators.empty_sub' | translate }}</p>
+        </div>
+      } @else {
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>{{ 'admin.moderators.col.username' | translate }}</th>
+                <th>{{ 'admin.moderators.col.promoted_at' | translate }}</th>
+                <th>{{ 'admin.moderators.col.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (mod of moderators; track mod.userId) {
+                <tr>
+                  <td>
+                    <a [routerLink]="['/u', mod.username]" class="username-link">
+                      @if (mod.avatarUrl) {
+                        <img [src]="'/' + mod.avatarUrl" [alt]="mod.username" class="avatar-sm" />
+                      } @else {
+                        <div class="avatar-sm avatar-initials">{{ mod.username.slice(0, 2).toUpperCase() }}</div>
+                      }
+                      {{ mod.username }}
+                    </a>
+                  </td>
+                  <td class="date-cell">
+                    {{ mod.promotedAt ? (mod.promotedAt | date:'dd/MM/yyyy') : '—' }}
+                  </td>
+                  <td>
+                    <button class="btn btn-danger btn--sm" (click)="openConfirm(mod)">
+                      {{ 'admin.moderators.remove_btn' | translate }}
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+
+  </div>
+}
+
+<!-- Confirm modal -->
+@if (confirmTarget) {
+  <div class="modal-overlay" (click)="cancelConfirm()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3 class="modal__title">{{ 'admin.moderators.confirm_title' | translate }}</h3>
+      <p class="modal__body">
+        {{ 'admin.moderators.confirm_body' | translate : { username: confirmTarget.username } }}
+      </p>
+      <div class="modal__actions">
+        <button class="btn btn-secondary" (click)="cancelConfirm()" [disabled]="isRemoving">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button class="btn btn-danger" (click)="confirmRemove()" [disabled]="isRemoving">
+          @if (isRemoving) {
+            <span class="spinner-sm"></span>
+          } @else {
+            {{ 'admin.moderators.confirm_btn' | translate }}
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
