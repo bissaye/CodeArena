@@ -63,11 +63,11 @@ jobs:
             git pull origin main
 
             echo "🐳 Rebuild et redémarrage des conteneurs..."
-            docker compose -f docker-compose.prod.yml up -d --build
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
             echo "⏳ Attente santé de l'API (max 60s)..."
             timeout 60 bash -c \
               'until curl -sf http://localhost:5000/api/health; do sleep 3; done'
 
             echo "✅ Déploiement terminé."
-            docker compose -f docker-compose.prod.yml ps
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
