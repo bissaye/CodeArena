@@ -25,6 +25,7 @@ public static class DependencyInjection
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IFileStorageService, FileStorageService>();
+        services.AddScoped<IEmailService, EmailService>();
 
         services.AddHostedService<CompetitionStatusUpdater>();
 

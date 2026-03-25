@@ -25,7 +25,8 @@
       "ERROR_INVALID": "Invalid credentials. Check your username and password.",
       "ERROR_GENERIC": "An error occurred. Please try again.",
       "NO_ACCOUNT": "No account yet?",
-      "REGISTER_LINK": "Sign up"
+      "REGISTER_LINK": "Sign up",
+      "FORGOT_PASSWORD": "Forgot password?"
     },
     "REGISTER": {
       "TITLE": "Create an account",
@@ -36,8 +37,9 @@
       "PASSWORD_PLACEHOLDER": "At least 8 characters",
       "CONFIRM_PASSWORD_LABEL": "Confirm password",
       "CONFIRM_PASSWORD_PLACEHOLDER": "Repeat your password",
-      "EMAIL_LABEL": "Email (optional)",
+      "EMAIL_LABEL": "Email address",
       "EMAIL_PLACEHOLDER": "your@email.com",
+      "EMAIL_HINT": "Required to recover your account if you forget your password.",
       "PHONE_LABEL": "Phone (optional)",
       "PHONE_PLACEHOLDER": "+237 6XX XXX XXX",
       "COUNTRY_LABEL": "Country",
@@ -63,6 +65,37 @@
       "PASSWORDS_MISMATCH": "Passwords do not match.",
       "EMAIL_FORMAT": "Invalid email address.",
       "CGU_REQUIRED": "You must accept the terms and conditions to continue."
+    },
+    "forgot_password": {
+      "title": "Forgot password",
+      "subtitle": "Enter your email to receive a reset link.",
+      "email_label": "Email address",
+      "email_placeholder": "your@email.com",
+      "submit": "Send reset link",
+      "success": "If this address is linked to an account, you will receive an email shortly.",
+      "back_to_login": "← Back to login",
+      "error_generic": "An error occurred. Please try again."
+    },
+    "reset_password": {
+      "title": "New password",
+      "new_password_label": "New password",
+      "confirm_password_label": "Confirm password",
+      "submit": "Reset my password",
+      "success": "Your password has been successfully reset.",
+      "go_to_login": "Log in",
+      "error_no_token": "Invalid link. Please submit a new reset request.",
+      "error_mismatch": "Passwords do not match.",
+      "error_invalid_token": "This link has expired or has already been used. Please submit a new request.",
+      "error_generic": "An error occurred. Please try again."
+    },
+    "verify_email": {
+      "loading": "Verifying…",
+      "success_title": "Email verified!",
+      "success_body": "Your email address has been successfully confirmed.",
+      "go_to_login": "Log in",
+      "error_title": "Invalid link",
+      "error_body": "This verification link has expired or has already been used.",
+      "back_to_login": "Back to login"
     }
   },
   "ERRORS": {
@@ -201,6 +234,10 @@
     "save_avatar": "Save avatar",
     "edit_profile": "Edit profile",
     "admin_link": "Administration",
+    "email_not_verified": "Your email address has not been verified yet.",
+    "resend_verification": "Resend email",
+    "verification_sent": "Verification email sent!",
+    "verification_error": "Unable to send the email. Please try again in a moment.",
     "change_password": "Change password",
     "save_success": "Profile updated successfully.",
     "password_success": "Password changed successfully.",

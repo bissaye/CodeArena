@@ -6,6 +6,7 @@ import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 import { UserProfile } from '../../core/models/user.models';
 import { COUNTRIES } from '../../core/constants/countries';
 import { CAMEROON_REGIONS } from '../../core/models/regions';
@@ -24,6 +25,7 @@ export class ProfileComponent implements OnInit {
   readonly authService = inject(AuthService);
   private readonly fb = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly toast = inject(ToastService);
 
   // Page state
   isLoading = true;
@@ -42,6 +44,9 @@ export class ProfileComponent implements OnInit {
   avatarFile: File | null = null;
   isUploadingAvatar = false;
   avatarError: string | null = null;
+
+  // Email verification
+  isResendingVerification = false;
 
   // Change password mode
   isChangingPassword = false;
@@ -113,6 +118,23 @@ export class ProfileComponent implements OnInit {
     this.isEditing = true;
     this.saveError = null;
     this.saveSuccess = false;
+  }
+
+  resendVerification(): void {
+    if (this.isResendingVerification) return;
+    this.isResendingVerification = true;
+    this.authService.resendVerification().subscribe({
+      next: () => {
+        this.isResendingVerification = false;
+        this.toast.success('profile.verification_sent');
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.isResendingVerification = false;
+        this.toast.error('profile.verification_error');
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   cancelEdit(): void {

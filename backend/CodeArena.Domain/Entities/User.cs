@@ -18,7 +18,12 @@ public class User
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? PromotedAt { get; set; }
     public bool IsActive { get; set; } = true;
+    public DateTime? EmailVerifiedAt { get; set; }
+    public DateTime? PasswordResetRequestedAt { get; set; }
+    public bool NotificationEmailEnabled { get; set; } = true;
 
     public ICollection<Submission> Submissions { get; set; } = [];
     public ICollection<UserProblemStatus> ProblemStatuses { get; set; } = [];
+    public ICollection<EmailVerification> EmailVerifications { get; set; } = [];
+    public ICollection<PasswordResetToken> PasswordResetTokens { get; set; } = [];
 }

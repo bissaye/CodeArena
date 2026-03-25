@@ -16,6 +16,9 @@ public class AuthController : ControllerBase
     private readonly IValidator<RegisterRequest> _registerValidator;
     private readonly IValidator<LoginRequest> _loginValidator;
     private readonly IValidator<ChangePasswordRequest> _changePasswordValidator;
+    private readonly IValidator<ForgotPasswordRequest> _forgotPasswordValidator;
+    private readonly IValidator<ResetPasswordRequest> _resetPasswordValidator;
+    private readonly IValidator<VerifyEmailRequest> _verifyEmailValidator;
     private readonly ILogger<AuthController> _logger;
 
     public AuthController(
@@ -23,12 +26,18 @@ public class AuthController : ControllerBase
         IValidator<RegisterRequest> registerValidator,
         IValidator<LoginRequest> loginValidator,
         IValidator<ChangePasswordRequest> changePasswordValidator,
+        IValidator<ForgotPasswordRequest> forgotPasswordValidator,
+        IValidator<ResetPasswordRequest> resetPasswordValidator,
+        IValidator<VerifyEmailRequest> verifyEmailValidator,
         ILogger<AuthController> logger)
     {
         _authService = authService;
         _registerValidator = registerValidator;
         _loginValidator = loginValidator;
         _changePasswordValidator = changePasswordValidator;
+        _forgotPasswordValidator = forgotPasswordValidator;
+        _resetPasswordValidator = resetPasswordValidator;
+        _verifyEmailValidator = verifyEmailValidator;
         _logger = logger;
     }
 
@@ -37,9 +46,7 @@ public class AuthController : ControllerBase
     [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Register(
-        [FromBody] RegisterRequest request,
-        CancellationToken ct)
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken ct)
     {
         var validation = await _registerValidator.ValidateAsync(request, ct);
         if (!validation.IsValid)
@@ -61,9 +68,7 @@ public class AuthController : ControllerBase
     [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Login(
-        [FromBody] LoginRequest request,
-        CancellationToken ct)
+    public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken ct)
     {
         var validation = await _loginValidator.ValidateAsync(request, ct);
         if (!validation.IsValid)
@@ -86,9 +91,7 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> ChangePassword(
-        [FromBody] ChangePasswordRequest request,
-        CancellationToken ct)
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken ct)
     {
         var sub = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
         if (!Guid.TryParse(sub, out var userId)) return Unauthorized();
@@ -102,17 +105,79 @@ public class AuthController : ControllerBase
             await _authService.ChangePasswordAsync(userId, request, ct);
             return Ok(new { message = "Mot de passe modifié avec succès." });
         }
-        catch (UnauthorizedException ex)
+        catch (UnauthorizedException ex) { return Unauthorized(new { message = ex.Message }); }
+        catch (BadRequestException ex) { return BadRequest(new { message = ex.Message }); }
+        catch (NotFoundException ex) { return NotFound(new { message = ex.Message }); }
+    }
+
+    /// <summary>Demander un lien de réinitialisation de mot de passe par email</summary>
+    [HttpPost("forgot-password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request, CancellationToken ct)
+    {
+        var validation = await _forgotPasswordValidator.ValidateAsync(request, ct);
+        if (!validation.IsValid)
+            return BadRequest(new { errors = validation.Errors.Select(e => e.ErrorMessage) });
+
+        // Toujours 200 — anti-enumeration d'emails
+        await _authService.ForgotPasswordAsync(request, ct);
+        return Ok(new { message = "Si cette adresse email est associée à un compte, vous recevrez un lien de réinitialisation." });
+    }
+
+    /// <summary>Réinitialiser le mot de passe avec le token reçu par email</summary>
+    [HttpPost("reset-password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request, CancellationToken ct)
+    {
+        var validation = await _resetPasswordValidator.ValidateAsync(request, ct);
+        if (!validation.IsValid)
+            return BadRequest(new { errors = validation.Errors.Select(e => e.ErrorMessage) });
+
+        try
         {
-            return Unauthorized(new { message = ex.Message });
+            await _authService.ResetPasswordAsync(request, ct);
+            return Ok(new { message = "Mot de passe réinitialisé avec succès. Vous pouvez maintenant vous connecter." });
         }
-        catch (ArgumentException ex)
+        catch (BadRequestException ex) { return BadRequest(new { message = ex.Message }); }
+    }
+
+    /// <summary>Vérifier l'adresse email avec le token reçu par email</summary>
+    [HttpPost("verify-email")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailRequest request, CancellationToken ct)
+    {
+        var validation = await _verifyEmailValidator.ValidateAsync(request, ct);
+        if (!validation.IsValid)
+            return BadRequest(new { errors = validation.Errors.Select(e => e.ErrorMessage) });
+
+        try
         {
-            return BadRequest(new { message = ex.Message });
+            await _authService.VerifyEmailAsync(request, ct);
+            return Ok(new { message = "Adresse email vérifiée avec succès." });
         }
-        catch (NotFoundException ex)
+        catch (BadRequestException ex) { return BadRequest(new { message = ex.Message }); }
+    }
+
+    /// <summary>Renvoyer l'email de vérification (requiert JWT)</summary>
+    [HttpPost("resend-verification")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> ResendVerification(CancellationToken ct)
+    {
+        var sub = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+        if (!Guid.TryParse(sub, out var userId)) return Unauthorized();
+
+        try
         {
-            return NotFound(new { message = ex.Message });
+            await _authService.ResendVerificationAsync(userId, ct);
+            return Ok(new { message = "Email de vérification envoyé." });
         }
+        catch (BadRequestException ex) { return BadRequest(new { message = ex.Message }); }
+        catch (NotFoundException ex) { return NotFound(new { message = ex.Message }); }
     }
 }

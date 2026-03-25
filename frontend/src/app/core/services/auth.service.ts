@@ -39,6 +39,22 @@ export class AuthService {
     );
   }
 
+  forgotPassword(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiBase}/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiBase}/reset-password`, { token, newPassword });
+  }
+
+  verifyEmail(token: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiBase}/verify-email`, { token });
+  }
+
+  resendVerification(): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiBase}/resend-verification`, {});
+  }
+
   logout(): void {
     localStorage.removeItem(TOKEN_KEY);
     this._currentUser$.next(null);

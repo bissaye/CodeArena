@@ -10,5 +10,6 @@ public record UserProfileDto(
     int CompetitionScore,
     int NationalRank,
     DateTime CreatedAt,
+    DateTime? EmailVerifiedAt,
     IReadOnlyList<UserActivityDto> RecentActivity
 );

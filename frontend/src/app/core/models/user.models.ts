@@ -17,6 +17,7 @@ export interface UserProfile {
   competitionScore: number;
   nationalRank: number;
   createdAt: string;
+  emailVerifiedAt: string | null;
   recentActivity: UserActivity[];
 }
 
