@@ -65,7 +65,9 @@
       "PASSWORDS_MISMATCH": "Passwords do not match.",
       "EMAIL_FORMAT": "Invalid email address.",
       "CGU_REQUIRED": "You must accept the terms and conditions to continue."
-    },
+    }
+  },
+  "auth": {
     "forgot_password": {
       "title": "Forgot password",
       "subtitle": "Enter your email to receive a reset link.",
