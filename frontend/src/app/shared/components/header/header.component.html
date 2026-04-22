@@ -21,6 +21,11 @@
   </nav>
 
   <div class="header__actions">
+    <!-- Icône cloche notifications (utilisateurs connectés uniquement) -->
+    @if (currentUser$ | async) {
+      <app-notification-bell />
+    }
+
     <!-- Language switcher -->
     <div class="header__lang">
       <button

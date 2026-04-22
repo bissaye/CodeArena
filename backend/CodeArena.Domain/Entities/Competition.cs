@@ -21,4 +21,7 @@ public class Competition
     public ICollection<Problem> Problems { get; set; } = [];
 
     public DateTime EndDate => StartDate.Add(Duration);
+
+    /// Tracks whether the "starting in 1h" reminder notification was already sent.
+    public DateTime? StartReminderSentAt { get; set; }
 }

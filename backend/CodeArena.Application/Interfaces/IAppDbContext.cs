@@ -12,6 +12,7 @@ public interface IAppDbContext
     DbSet<UserProblemStatus> UserProblemStatuses { get; }
     DbSet<EmailVerification> EmailVerifications { get; }
     DbSet<PasswordResetToken> PasswordResetTokens { get; }
+    DbSet<Notification> Notifications { get; }
 
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

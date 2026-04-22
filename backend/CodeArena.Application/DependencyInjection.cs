@@ -11,6 +11,7 @@ public static class DependencyInjection
     {
         services.AddScoped<IAdminService, AdminService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<ICompetitionService, CompetitionService>();
         services.AddScoped<ILeaderboardService, LeaderboardService>();
         services.AddSingleton<IMarkdownSanitizerService, MarkdownSanitizerService>();

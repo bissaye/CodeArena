@@ -64,6 +64,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/problem/problem-detail/problem-detail.component').then(m => m.ProblemDetailComponent),
   },
   {
+    path: 'notifications',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/notifications/notifications.component').then(m => m.NotificationsComponent),
+  },
+  {
     path: 'leaderboard',
     loadComponent: () => import('./features/leaderboard/leaderboard.component').then(m => m.LeaderboardComponent),
   },

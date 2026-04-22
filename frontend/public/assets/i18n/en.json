@@ -313,6 +313,24 @@
       "message": "You do not have permission to access this page."
     }
   },
+  "notifications": {
+    "title": "Notifications",
+    "aria_bell": "Open notifications",
+    "dropdown_label": "Notifications panel",
+    "empty": "No notifications yet.",
+    "unread_only": "Unread only",
+    "unread_dot": "Unread",
+    "mark_all_read": "Mark all as read",
+    "see_all": "See all notifications →",
+    "pagination_label": "Notifications pagination",
+    "error_load": "Failed to load notifications.",
+    "type": {
+      "SubmissionAccepted": "Submission accepted",
+      "SubmissionWrong": "Wrong answer",
+      "CompetitionStarting": "Competition starting soon",
+      "CompetitionStarted": "Competition started"
+    }
+  },
   "admin": {
     "moderators": {
       "title": "Moderator Management",

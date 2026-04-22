@@ -3,11 +3,12 @@ import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { TranslatePipe, TranslateService, LangChangeEvent } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationBellComponent } from '../notification-bell/notification-bell.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, AsyncPipe, TranslatePipe],
+  imports: [RouterLink, RouterLinkActive, AsyncPipe, TranslatePipe, NotificationBellComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
 })
