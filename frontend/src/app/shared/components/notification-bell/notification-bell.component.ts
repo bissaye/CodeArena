@@ -5,6 +5,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 import { NotificationService } from '../../../core/services/notification.service';
 import { NotificationDto, NotificationsPage } from '../../../core/models/notification.models';
 
@@ -27,6 +28,7 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   page: NotificationsPage | null = null;
 
   private pollingId?: ReturnType<typeof setInterval>;
+  private refreshSub?: Subscription;
 
   get unreadCount(): number {
     return this.page?.unreadCount ?? 0;
@@ -38,11 +40,13 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadNotifications();
-    this.pollingId = setInterval(() => this.loadNotifications(), 30_000);
+    this.pollingId = setInterval(() => this.loadNotifications(), 10_000);
+    this.refreshSub = this.notifService.refresh$.subscribe(() => this.loadNotifications());
   }
 
   ngOnDestroy(): void {
     if (this.pollingId) clearInterval(this.pollingId);
+    this.refreshSub?.unsubscribe();
   }
 
   @HostListener('document:click', ['$event'])

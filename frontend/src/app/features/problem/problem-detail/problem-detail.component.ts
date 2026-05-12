@@ -5,6 +5,7 @@ import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ProblemService } from '../../../core/services/problem.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { ProblemDetail, SubmitSolutionResult, SubmissionRecord } from '../../../core/models/problem.models';
 import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
 
@@ -19,6 +20,7 @@ export class ProblemDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly problemService = inject(ProblemService);
   private readonly auth = inject(AuthService);
+  private readonly notifService = inject(NotificationService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   // Page state
@@ -113,6 +115,7 @@ export class ProblemDetailComponent implements OnInit {
           this.problem = { ...this.problem, solvedByCurrentUser: true };
         }
         this.loadHistory();
+        this.notifService.triggerRefresh();
         this.cdr.markForCheck();
       },
       error: (err: HttpErrorResponse) => {
