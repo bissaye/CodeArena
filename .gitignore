@@ -1,6 +1,13 @@
 # Environment
 .env
 **/.claude/
+
+# Documentation interne (non versionnée)
+CLAUDE.md
+context.md
+CONTEXT-V2.md
+design-system.md
+checkpoint-*.md
 # .NET
 **/bin/
 **/obj/
