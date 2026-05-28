@@ -15,6 +15,8 @@ public class CodeArenaDbContext(DbContextOptions<CodeArenaDbContext> options)
     public DbSet<EmailVerification> EmailVerifications => Set<EmailVerification>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<Badge> Badges => Set<Badge>();
+    public DbSet<UserBadge> UserBadges => Set<UserBadge>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

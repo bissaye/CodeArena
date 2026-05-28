@@ -1,3 +1,5 @@
+import { BadgeDto } from './badge.models';
+
 export interface UserActivity {
   problemId: string;
   problemTitle: string;
@@ -14,11 +16,13 @@ export interface UserProfile {
   region: string | null;
   school: string | null;
   totalScore: number;
+  level: string;
   competitionScore: number;
   nationalRank: number;
   createdAt: string;
   emailVerifiedAt: string | null;
   recentActivity: UserActivity[];
+  badges: BadgeDto[];
 }
 
 export interface UpdateUserRequest {

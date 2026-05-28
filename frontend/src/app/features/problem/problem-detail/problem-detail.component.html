@@ -210,3 +210,25 @@
 
   </div>
 }
+
+<!-- Badge toast stack -->
+@if (badgeToasts.length > 0) {
+  <div class="badge-toast-stack">
+    @for (badge of badgeToasts; track badge.id; let i = $index) {
+      <div class="badge-toast">
+        <div class="badge-toast__icon">
+          <img [src]="badge.iconUrl" [alt]="badge.name"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='block'"
+          />
+          <span style="display:none">🏅</span>
+        </div>
+        <div class="badge-toast__content">
+          <strong class="badge-toast__title">{{ 'badges.toast_title' | translate }}</strong>
+          <span class="badge-toast__name">{{ badge.name }}</span>
+          <span class="badge-toast__desc">{{ badge.description }}</span>
+        </div>
+        <button class="badge-toast__close" (click)="dismissBadgeToast(i)" aria-label="Fermer">✕</button>
+      </div>
+    }
+  </div>
+}

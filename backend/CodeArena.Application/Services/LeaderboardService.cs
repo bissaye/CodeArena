@@ -29,7 +29,7 @@ public class LeaderboardService(
             .ToListAsync(ct);
 
         var result = entries
-            .Select((u, i) => new LeaderboardEntryDto(i + 1, u.Id, u.Username, u.AvatarUrl, u.Country, u.Region, u.TotalScore))
+            .Select((u, i) => new LeaderboardEntryDto(i + 1, u.Id, u.Username, u.AvatarUrl, u.Country, u.Region, u.TotalScore, GetLevel(u.TotalScore)))
             .ToList();
 
         cache.Set(CacheKey, result, TimeSpan.FromSeconds(30));
@@ -108,7 +108,7 @@ public class LeaderboardService(
             .ToListAsync(ct);
 
         var entries = users
-            .Select((u, i) => new LeaderboardEntryDto(offset + i + 1, u.Id, u.Username, u.AvatarUrl, u.Country, u.Region, u.TotalScore))
+            .Select((u, i) => new LeaderboardEntryDto(offset + i + 1, u.Id, u.Username, u.AvatarUrl, u.Country, u.Region, u.TotalScore, GetLevel(u.TotalScore)))
             .ToList();
 
         var page = new LeaderboardPageDto(total, offset, limit, DateTime.UtcNow, entries);
@@ -118,4 +118,12 @@ public class LeaderboardService(
 
     private static string BuildCacheKey(LeaderboardQueryDto q) =>
         $"leaderboard_filtered|{q.Country}|{q.Region}|{q.School}|{q.CompetitionId}|{q.ScoreMin}|{q.ScoreMax}|{q.CompetitionOnly}|{q.Search}|{q.Offset}|{q.Limit}";
+
+    private static string GetLevel(int score) => score switch
+    {
+        >= 1500 => "Expert",
+        >= 500  => "Avancé",
+        >= 100  => "Intermédiaire",
+        _       => "Débutant"
+    };
 }

@@ -13,6 +13,8 @@ public interface IAppDbContext
     DbSet<EmailVerification> EmailVerifications { get; }
     DbSet<PasswordResetToken> PasswordResetTokens { get; }
     DbSet<Notification> Notifications { get; }
+    DbSet<Badge> Badges { get; }
+    DbSet<UserBadge> UserBadges { get; }
 
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

@@ -413,5 +413,30 @@
         "save": "Une erreur est survenue lors de la sauvegarde."
       }
     }
+  },
+  "badges": {
+    "title": "Badges",
+    "empty": "Aucun badge débloqué pour l'instant.",
+    "earned_on": "Obtenu le",
+    "catalogue_title": "Catalogue des badges",
+    "locked": "Verrouillé",
+    "toast_title": "Badge débloqué !",
+    "slugs": {
+      "first-ac":       { "name": "Premier pas",      "description": "Obtenir votre première soumission acceptée." },
+      "speed-solver":   { "name": "Briseur de glace", "description": "Résoudre un exercice en moins de 30 minutes." },
+      "week-streak":    { "name": "Régulier",          "description": "Soumettre au moins une solution 7 jours consécutifs." },
+      "top-10":         { "name": "Top 10",            "description": "Entrer dans le top 10 d'une compétition." },
+      "top-3-national": { "name": "Top 3 national",   "description": "Atteindre le top 3 du classement de votre pays." },
+      "centurion":      { "name": "Centurion",         "description": "Résoudre 100 exercices distincts." },
+      "mentor":         { "name": "Mentor",            "description": "Créer un exercice résolu par 50 participants différents." }
+    }
+  },
+  "levels": {
+    "Débutant":      "Débutant",
+    "Intermédiaire": "Intermédiaire",
+    "Avancé":        "Avancé",
+    "Expert":        "Expert",
+    "next_level":    "Prochain niveau",
+    "pts_needed":    "pts nécessaires"
   }
 }

@@ -22,9 +22,18 @@ public class User
     public DateTime? PasswordResetRequestedAt { get; set; }
     public bool NotificationEmailEnabled { get; set; } = true;
 
+    public string Level => TotalScore switch
+    {
+        >= 1500 => "Expert",
+        >= 500  => "Avancé",
+        >= 100  => "Intermédiaire",
+        _       => "Débutant"
+    };
+
     public ICollection<Submission> Submissions { get; set; } = [];
     public ICollection<UserProblemStatus> ProblemStatuses { get; set; } = [];
     public ICollection<EmailVerification> EmailVerifications { get; set; } = [];
     public ICollection<PasswordResetToken> PasswordResetTokens { get; set; } = [];
     public ICollection<Notification> Notifications { get; set; } = [];
+    public ICollection<UserBadge> UserBadges { get; set; } = [];
 }

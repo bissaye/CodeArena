@@ -6,6 +6,7 @@ export interface LeaderboardEntry {
   country: string;
   region: string | null;
   score: number;
+  level: string;
 }
 
 export interface LeaderboardPage {

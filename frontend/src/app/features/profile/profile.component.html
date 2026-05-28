@@ -88,6 +88,17 @@
           {{ 'profile.member_since' | translate }} {{ profile.createdAt | date:'MMM yyyy' }}
         </p>
 
+        <!-- Niveau -->
+        <div class="profile-level">
+          <span class="profile-level__badge level--{{ profile.level | lowercase }}">
+            {{ 'levels.' + profile.level | translate }}
+          </span>
+          <div class="profile-level__bar">
+            <div class="profile-level__bar-fill" [style.width.%]="getLevelProgress()"></div>
+          </div>
+          <span class="profile-level__pts">{{ profile.totalScore }} pts</span>
+        </div>
+
         <!-- Scores -->
         <div class="profile-stats">
           <div class="profile-stat">
@@ -220,6 +231,31 @@
             </form>
           </section>
         }
+
+        <!-- Badges -->
+        <section class="profile-section">
+          <h2 class="profile-section__title">{{ 'badges.title' | translate }}</h2>
+          @if (profile.badges.length === 0) {
+            <p class="empty-state">{{ 'badges.empty' | translate }}</p>
+          } @else {
+            <div class="badges-grid">
+              @for (badge of profile.badges; track badge.id) {
+                <div class="badge-card" [title]="badge.description">
+                  <div class="badge-card__icon">
+                    <img [src]="badge.iconUrl" [alt]="badge.name"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+                    />
+                    <span class="badge-card__icon-fallback" style="display:none">🏅</span>
+                  </div>
+                  <span class="badge-card__name">{{ badge.name }}</span>
+                  @if (badge.earnedAt) {
+                    <span class="badge-card__date">{{ badge.earnedAt | date:'dd/MM/yy' }}</span>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </section>
 
         <!-- Recent activity -->
         <section class="profile-section">

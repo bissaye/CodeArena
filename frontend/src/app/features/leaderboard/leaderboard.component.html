@@ -121,6 +121,7 @@
               <th class="col-user">{{ 'leaderboard.col.user' | translate }}</th>
               <th class="col-country">{{ 'leaderboard.col.country' | translate }}</th>
               <th class="col-region">{{ 'leaderboard.col.region' | translate }}</th>
+              <th class="col-level">Niveau</th>
               <th class="col-score">{{ 'leaderboard.col.score' | translate }}</th>
             </tr>
           </thead>
@@ -152,6 +153,11 @@
                   {{ entry.country }}
                 </td>
                 <td class="col-region">{{ entry.region ?? '—' }}</td>
+                <td class="col-level">
+                  <span class="level-badge level--{{ entry.level | lowercase }}">
+                    {{ 'levels.' + entry.level | translate }}
+                  </span>
+                </td>
                 <td class="col-score">
                   <span class="leaderboard-row__score">{{ entry.score }}</span>
                 </td>

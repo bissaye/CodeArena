@@ -105,9 +105,18 @@ public class CompetitionService(IAppDbContext db, ILogger<CompetitionService> lo
             x.AvatarUrl,
             x.Country,
             x.Region,
-            x.Score
+            x.Score,
+            GetLevel(x.Score)
         ));
     }
+
+    private static string GetLevel(int score) => score switch
+    {
+        >= 1500 => "Expert",
+        >= 500  => "Avancé",
+        >= 100  => "Intermédiaire",
+        _       => "Débutant"
+    };
 
     public async Task<Guid> CreateAsync(CreateCompetitionRequest request, Guid createdByUserId, CancellationToken ct = default)
     {

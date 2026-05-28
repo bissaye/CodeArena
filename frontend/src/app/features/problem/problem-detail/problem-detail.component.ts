@@ -6,8 +6,10 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ProblemService } from '../../../core/services/problem.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { BadgeService } from '../../../core/services/badge.service';
 import { ProblemDetail, SubmitSolutionResult, SubmissionRecord } from '../../../core/models/problem.models';
 import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
+import { BadgeDto } from '../../../core/models/badge.models';
 
 @Component({
   selector: 'app-problem-detail',
@@ -21,7 +23,12 @@ export class ProblemDetailComponent implements OnInit {
   private readonly problemService = inject(ProblemService);
   private readonly auth = inject(AuthService);
   private readonly notifService = inject(NotificationService);
+  private readonly badgeService = inject(BadgeService);
   private readonly cdr = inject(ChangeDetectorRef);
+
+  // Badge toast
+  badgeToasts: BadgeDto[] = [];
+  private knownBadgeIds = new Set<string>();
 
   // Page state
   isLoading = true;
@@ -45,6 +52,7 @@ export class ProblemDetailComponent implements OnInit {
     this.problemId = this.route.snapshot.paramMap.get('id')!;
     this.loadProblem();
     this.loadHistory();
+    this.preloadUserBadges();
   }
 
   private loadProblem(): void {
@@ -116,6 +124,7 @@ export class ProblemDetailComponent implements OnInit {
         }
         this.loadHistory();
         this.notifService.triggerRefresh();
+        if (result.status === 'Accepted') this.checkNewBadgesAfterDelay();
         this.cdr.markForCheck();
       },
       error: (err: HttpErrorResponse) => {
@@ -134,5 +143,45 @@ export class ProblemDetailComponent implements OnInit {
 
   getInputUrl(): string {
     return this.problemService.getInputUrl(this.problemId);
+  }
+
+  dismissBadgeToast(index: number): void {
+    this.badgeToasts.splice(index, 1);
+    this.cdr.markForCheck();
+  }
+
+  private preloadUserBadges(): void {
+    const username = this.auth.currentUser?.username;
+    if (!username) return;
+    this.badgeService.getUserBadges(username).subscribe({
+      next: (badges) => {
+        this.knownBadgeIds = new Set(badges.map(b => b.id));
+      },
+      error: () => {}
+    });
+  }
+
+  private checkNewBadgesAfterDelay(): void {
+    const username = this.auth.currentUser?.username;
+    if (!username) return;
+    // Give the server 3s to process the fire-and-forget badge check
+    setTimeout(() => {
+      this.badgeService.getUserBadges(username).subscribe({
+        next: (badges) => {
+          const newBadges = badges.filter(b => !this.knownBadgeIds.has(b.id));
+          newBadges.forEach(b => this.knownBadgeIds.add(b.id));
+          if (newBadges.length > 0) {
+            this.badgeToasts.push(...newBadges);
+            this.cdr.markForCheck();
+            // Auto-dismiss after 6s
+            setTimeout(() => {
+              this.badgeToasts = this.badgeToasts.filter(t => !newBadges.includes(t));
+              this.cdr.markForCheck();
+            }, 6000);
+          }
+        },
+        error: () => {}
+      });
+    }, 3000);
   }
 }

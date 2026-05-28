@@ -5,5 +5,6 @@ public enum NotificationType
     SubmissionAccepted,
     SubmissionWrong,
     CompetitionStarting,
-    CompetitionStarted
+    CompetitionStarted,
+    BadgeEarned
 }

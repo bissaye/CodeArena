@@ -413,5 +413,30 @@
         "save": "An error occurred while saving."
       }
     }
+  },
+  "badges": {
+    "title": "Badges",
+    "empty": "No badges unlocked yet.",
+    "earned_on": "Earned on",
+    "catalogue_title": "Badge Catalogue",
+    "locked": "Locked",
+    "toast_title": "Badge Unlocked!",
+    "slugs": {
+      "first-ac":       { "name": "First Step",       "description": "Get your first accepted submission." },
+      "speed-solver":   { "name": "Ice Breaker",       "description": "Solve a problem in under 30 minutes." },
+      "week-streak":    { "name": "Consistent",        "description": "Submit at least one solution 7 days in a row." },
+      "top-10":         { "name": "Top 10",            "description": "Reach the top 10 in a competition." },
+      "top-3-national": { "name": "National Top 3",   "description": "Reach the top 3 in your country ranking." },
+      "centurion":      { "name": "Centurion",         "description": "Solve 100 distinct problems." },
+      "mentor":         { "name": "Mentor",            "description": "Create a problem solved by 50 different participants." }
+    }
+  },
+  "levels": {
+    "Débutant":      "Beginner",
+    "Intermédiaire": "Intermediate",
+    "Avancé":        "Advanced",
+    "Expert":        "Expert",
+    "next_level":    "Next level",
+    "pts_needed":    "pts needed"
   }
 }

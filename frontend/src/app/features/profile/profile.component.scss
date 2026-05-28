@@ -303,3 +303,94 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+// --- Niveau ---
+.profile-level {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 var(--space-3);
+
+  &__badge {
+    font-size: var(--text-label);
+    font-weight: 600;
+    padding: 2px var(--space-2);
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+  }
+
+  &__bar {
+    flex: 1;
+    height: 6px;
+    background: var(--color-border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  &__bar-fill {
+    height: 100%;
+    background: var(--color-primary);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+
+  &__pts {
+    font-size: var(--text-label);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+}
+
+.level--débutant      { background: #e8f5e9; color: #2e7d32; }
+.level--intermédiaire { background: #e3f2fd; color: #1565c0; }
+.level--avancé        { background: #f3e5f5; color: #6a1b9a; }
+.level--expert        { background: #fff8e1; color: #e65100; }
+
+// --- Badges ---
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: var(--space-3);
+}
+
+.badge-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: center;
+  cursor: default;
+  transition: transform 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  &__icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img { width: 100%; height: 100%; object-fit: contain; }
+    &-fallback { font-size: 1.8rem; }
+  }
+
+  &__name {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--color-text);
+    line-height: 1.2;
+  }
+
+  &__date {
+    font-size: 0.6rem;
+    color: var(--color-text-muted);
+  }
+}
