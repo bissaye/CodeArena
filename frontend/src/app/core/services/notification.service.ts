@@ -11,8 +11,15 @@ export class NotificationService {
   private readonly refreshSubject = new Subject<void>();
   readonly refresh$ = this.refreshSubject.asObservable();
 
+  private readonly badgeEarnedSubject = new Subject<void>();
+  readonly badgeEarned$ = this.badgeEarnedSubject.asObservable();
+
   triggerRefresh(): void {
     this.refreshSubject.next();
+  }
+
+  announceBadgeEarned(): void {
+    this.badgeEarnedSubject.next();
   }
 
   getNotifications(unreadOnly = false, page = 1): Observable<NotificationsPage> {

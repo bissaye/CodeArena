@@ -1,8 +1,9 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Subscription } from 'rxjs';
 import { ProblemService } from '../../../core/services/problem.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -18,7 +19,7 @@ import { BadgeDto } from '../../../core/models/badge.models';
   templateUrl: './problem-detail.component.html',
   styleUrl: './problem-detail.component.scss',
 })
-export class ProblemDetailComponent implements OnInit {
+export class ProblemDetailComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly problemService = inject(ProblemService);
   private readonly auth = inject(AuthService);
@@ -29,6 +30,7 @@ export class ProblemDetailComponent implements OnInit {
   // Badge toast
   badgeToasts: BadgeDto[] = [];
   private knownBadgeIds = new Set<string>();
+  private badgeSub?: Subscription;
 
   // Page state
   isLoading = true;
@@ -53,6 +55,11 @@ export class ProblemDetailComponent implements OnInit {
     this.loadProblem();
     this.loadHistory();
     this.preloadUserBadges();
+    this.badgeSub = this.notifService.badgeEarned$.subscribe(() => this.checkNewBadges());
+  }
+
+  ngOnDestroy(): void {
+    this.badgeSub?.unsubscribe();
   }
 
   private loadProblem(): void {
@@ -124,7 +131,6 @@ export class ProblemDetailComponent implements OnInit {
         }
         this.loadHistory();
         this.notifService.triggerRefresh();
-        if (result.status === 'Accepted') this.checkNewBadgesAfterDelay();
         this.cdr.markForCheck();
       },
       error: (err: HttpErrorResponse) => {
@@ -161,27 +167,23 @@ export class ProblemDetailComponent implements OnInit {
     });
   }
 
-  private checkNewBadgesAfterDelay(): void {
+  private checkNewBadges(): void {
     const username = this.auth.currentUser?.username;
     if (!username) return;
-    // Give the server 3s to process the fire-and-forget badge check
-    setTimeout(() => {
-      this.badgeService.getUserBadges(username).subscribe({
-        next: (badges) => {
-          const newBadges = badges.filter(b => !this.knownBadgeIds.has(b.id));
-          newBadges.forEach(b => this.knownBadgeIds.add(b.id));
-          if (newBadges.length > 0) {
-            this.badgeToasts.push(...newBadges);
+    this.badgeService.getUserBadges(username).subscribe({
+      next: (badges) => {
+        const newBadges = badges.filter(b => !this.knownBadgeIds.has(b.id));
+        newBadges.forEach(b => this.knownBadgeIds.add(b.id));
+        if (newBadges.length > 0) {
+          this.badgeToasts.push(...newBadges);
+          this.cdr.markForCheck();
+          setTimeout(() => {
+            this.badgeToasts = this.badgeToasts.filter(t => !newBadges.includes(t));
             this.cdr.markForCheck();
-            // Auto-dismiss after 6s
-            setTimeout(() => {
-              this.badgeToasts = this.badgeToasts.filter(t => !newBadges.includes(t));
-              this.cdr.markForCheck();
-            }, 6000);
-          }
-        },
-        error: () => {}
-      });
-    }, 3000);
+          }, 6000);
+        }
+      },
+      error: () => {}
+    });
   }
 }
