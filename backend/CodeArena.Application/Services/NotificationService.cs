@@ -9,13 +9,14 @@ namespace CodeArena.Application.Services;
 
 public class NotificationService(
     IAppDbContext db,
+    INotificationPusher pusher,
     ILogger<NotificationService> logger) : INotificationService
 {
     private const int PageSize = 20;
 
     public async Task CreateAsync(Guid userId, NotificationType type, string title, string body, CancellationToken ct = default)
     {
-        db.Notifications.Add(new Notification
+        var notification = new Notification
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -24,9 +25,14 @@ public class NotificationService(
             Body = body,
             IsRead = false,
             CreatedAt = DateTime.UtcNow
-        });
+        };
+        db.Notifications.Add(notification);
         await db.SaveChangesAsync(ct);
         logger.LogInformation("Notification created: userId={UserId} type={Type}", userId, type);
+
+        // Push real-time via Redis → SignalR relay in API process
+        var dto = new NotificationDto(notification.Id, type.ToString(), title, body, false, notification.CreatedAt, null);
+        await pusher.PushAsync(userId, dto, ct);
     }
 
     public async Task<NotificationsPageDto> GetPagedAsync(Guid userId, bool unreadOnly, int page, CancellationToken ct = default)

@@ -39,6 +39,7 @@ C'est tout. Les conteneurs démarrent, la migration est appliquée automatiqueme
 | **Application web** | http://localhost:4200 | Interface Angular |
 | **API Swagger** | http://localhost:5000/swagger | Documentation interactive |
 | **API Health** | http://localhost:5000/api/health | Vérification santé |
+| **Hangfire Dashboard** | http://localhost:5001/hangfire | Jobs Hangfire (Worker) |
 | **PgAdmin** | http://localhost:5050 | Interface base de données (optionnel) |
 
 ### Lancer PgAdmin
@@ -170,14 +171,18 @@ CodeArenaCamer/
 ├── backend/          # ASP.NET Core 10 — Clean Architecture
 │   ├── CodeArena.Domain/        # Entités, Enums
 │   ├── CodeArena.Application/   # Services, DTOs, Interfaces
-│   ├── CodeArena.Infrastructure/ # EF Core, PostgreSQL, FileStorage
-│   └── CodeArena.API/           # Controllers, Program.cs
+│   ├── CodeArena.Infrastructure/ # EF Core, PostgreSQL, Redis, Jobs
+│   ├── CodeArena.API/           # Controllers, Hubs SignalR, Program.cs
+│   ├── CodeArena.Worker/        # Hangfire Worker dédié
+│   ├── Dockerfile               # Image API
+│   └── Dockerfile.hangfire      # Image Worker
 ├── frontend/         # Angular 21 — Standalone Components
 │   └── src/app/
-│       ├── core/     # Auth, Guards, Interceptors, Services
+│       ├── core/     # Auth, Guards, Interceptors, Services, SignalR
 │       ├── shared/   # Composants réutilisables, Pipes
 │       └── features/ # Pages (auth, home, competition, problem…)
-├── docker-compose.yml
+├── docker-compose.yml      # Services : postgres, redis, api, hangfire, frontend
+├── docker-compose.prod.yml # Overrides production
 ├── .env.example
 └── README.md
 ```
@@ -189,6 +194,9 @@ CodeArenaCamer/
 | Backend | ASP.NET Core 10, Entity Framework Core 10, PostgreSQL 16 |
 | Frontend | Angular 21, SCSS, ngx-translate |
 | Auth | JWT HS256, BCrypt |
+| Cache | Redis 7 (IDistributedCache, leaderboard 30s) |
+| Jobs | Hangfire 1.8 + Hangfire.PostgreSql (retry, dashboard) |
+| Temps réel | SignalR + Redis backplane + @microsoft/signalr |
 | Conteneurs | Podman / Docker + nginx |
 | Markdown | Markdig (serveur, sanitisation XSS), marked (client) |
 | Images | SixLabors.ImageSharp 3.x (resize avatar) |

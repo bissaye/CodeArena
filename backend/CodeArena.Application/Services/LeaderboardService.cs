@@ -1,23 +1,34 @@
+using System.Text.Json;
 using CodeArena.Application.DTOs;
 using CodeArena.Application.Interfaces;
 using CodeArena.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 
 namespace CodeArena.Application.Services;
 
 public class LeaderboardService(
     IAppDbContext db,
-    IMemoryCache cache,
+    IDistributedCache cache,
     ILogger<LeaderboardService> logger) : ILeaderboardService
 {
-    private const string CacheKey = "leaderboard_global";
+    private static readonly DistributedCacheEntryOptions CacheOptions =
+        new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30) };
+
+    private static readonly JsonSerializerOptions JsonOptions =
+        new() { PropertyNameCaseInsensitive = true };
 
     public async Task<IEnumerable<LeaderboardEntryDto>> GetGlobalLeaderboardAsync(int top, CancellationToken ct = default)
     {
-        if (cache.TryGetValue(CacheKey, out IEnumerable<LeaderboardEntryDto>? cached) && cached is not null)
-            return cached.Take(top);
+        var cacheKey = $"leaderboard_global_{top}";
+        var cached = await cache.GetStringAsync(cacheKey, ct);
+        if (cached is not null)
+        {
+            var cachedResult = JsonSerializer.Deserialize<List<LeaderboardEntryDto>>(cached, JsonOptions);
+            if (cachedResult is not null)
+                return cachedResult;
+        }
 
         logger.LogDebug("Leaderboard cache miss — querying DB");
 
@@ -32,21 +43,25 @@ public class LeaderboardService(
             .Select((u, i) => new LeaderboardEntryDto(i + 1, u.Id, u.Username, u.AvatarUrl, u.Country, u.Region, u.TotalScore, GetLevel(u.TotalScore)))
             .ToList();
 
-        cache.Set(CacheKey, result, TimeSpan.FromSeconds(30));
+        await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), CacheOptions, ct);
         return result;
     }
 
     public async Task<LeaderboardPageDto> GetFilteredLeaderboardAsync(LeaderboardQueryDto query, CancellationToken ct = default)
     {
         var cacheKey = BuildCacheKey(query);
-        if (cache.TryGetValue(cacheKey, out LeaderboardPageDto? cachedPage) && cachedPage is not null)
-            return cachedPage;
+        var cached = await cache.GetStringAsync(cacheKey, ct);
+        if (cached is not null)
+        {
+            var cachedPage = JsonSerializer.Deserialize<LeaderboardPageDto>(cached, JsonOptions);
+            if (cachedPage is not null)
+                return cachedPage;
+        }
 
         logger.LogDebug("Filtered leaderboard cache miss — querying DB");
 
         var q = db.Users.Where(u => u.IsActive).AsQueryable();
 
-        // Filters
         if (!string.IsNullOrWhiteSpace(query.Country))
             q = q.Where(u => u.Country == query.Country);
 
@@ -65,7 +80,6 @@ public class LeaderboardService(
         if (query.ScoreMax.HasValue)
             q = q.Where(u => u.TotalScore <= query.ScoreMax.Value);
 
-        // competitionOnly: filter to users who solved at least one problem in a non-Finished competition
         if (query.CompetitionOnly)
         {
             var activeCompetitionUserIds = await db.UserProblemStatuses
@@ -80,7 +94,6 @@ public class LeaderboardService(
             q = q.Where(u => activeCompetitionUserIds.Contains(u.Id));
         }
 
-        // Filter by specific competition
         if (query.CompetitionId.HasValue)
         {
             var competitionUserIds = await db.UserProblemStatuses
@@ -112,7 +125,7 @@ public class LeaderboardService(
             .ToList();
 
         var page = new LeaderboardPageDto(total, offset, limit, DateTime.UtcNow, entries);
-        cache.Set(cacheKey, page, TimeSpan.FromSeconds(30));
+        await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(page), CacheOptions, ct);
         return page;
     }
 

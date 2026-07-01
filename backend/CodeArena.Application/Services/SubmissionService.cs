@@ -3,8 +3,8 @@ using CodeArena.Application.Exceptions;
 using CodeArena.Application.Interfaces;
 using CodeArena.Domain.Entities;
 using CodeArena.Domain.Enums;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace CodeArena.Application.Services;
@@ -12,7 +12,7 @@ namespace CodeArena.Application.Services;
 public class SubmissionService(
     IAppDbContext db,
     IFileStorageService fileStorage,
-    IServiceScopeFactory scopeFactory,
+    IBackgroundJobClient backgroundJobClient,
     ILogger<SubmissionService> logger) : ISubmissionService
 {
     public async Task<SubmitSolutionResult> SubmitAsync(
@@ -38,19 +38,16 @@ public class SubmissionService(
         if (existingStatus?.Solved == true)
             throw new AlreadyAcceptedException();
 
-        // Store uploaded files with GUID names (never the original filename)
         var resultRelativePath = await fileStorage.SaveFileAsync(resultFileStream, resultFileName, "submissions", ct);
         string? sourceRelativePath = null;
         if (sourceFileStream is not null && sourceFileName is not null)
             sourceRelativePath = await fileStorage.SaveFileAsync(sourceFileStream, sourceFileName, "submissions/src", ct);
 
-        // Compare result with expected output (trim + normalize newlines per spec)
         var submittedContent = await fileStorage.ReadFileContentAsync(resultRelativePath, ct);
         var expectedContent = await fileStorage.ReadFileContentAsync(problem.OutputFileUrl, ct);
         var isAccepted = Normalize(submittedContent) == Normalize(expectedContent);
         var status = isAccepted ? SubmissionStatus.Accepted : SubmissionStatus.Wrong;
 
-        // Check if this is the very first accepted submission on this problem (for leaderboard tie-breaker)
         var isFirstAccepted = false;
         if (isAccepted)
         {
@@ -58,7 +55,6 @@ public class SubmissionService(
                 .AnyAsync(s => s.ProblemId == problemId && s.Status == SubmissionStatus.Accepted, ct);
         }
 
-        // Build the submission entity
         var submission = new Submission
         {
             Id = Guid.NewGuid(),
@@ -72,7 +68,6 @@ public class SubmissionService(
         };
         db.Submissions.Add(submission);
 
-        // Upsert UserProblemStatus
         if (existingStatus is null)
         {
             db.UserProblemStatuses.Add(new UserProblemStatus
@@ -91,7 +86,6 @@ public class SubmissionService(
             if (isAccepted) existingStatus.Solved = true;
         }
 
-        // Update user total score in the same transaction
         if (isAccepted)
         {
             var user = await db.Users.FindAsync([userId], ct)
@@ -99,20 +93,29 @@ public class SubmissionService(
             user.TotalScore += problem.Points;
         }
 
-        // Single SaveChanges = implicit EF Core transaction (satisfies sprint rule)
         await db.SaveChangesAsync(ct);
 
         logger.LogInformation(
             "Submission {SubmissionId}: problem={ProblemId}, user={UserId}, status={Status}",
             submission.Id, problemId, userId, status);
 
-        // Fire-and-forget in its own scope — the request scope may be disposed before this completes
         var problemTitle = problem.Title;
         var points = problem.Points;
-        _ = SendJudgmentNotificationAsync(userId, problemTitle, isAccepted, points);
+        var notifType = isAccepted ? NotificationType.SubmissionAccepted : NotificationType.SubmissionWrong;
+        var notifTitle = isAccepted
+            ? $"Accepted ✓ — {problemTitle}"
+            : $"Wrong Answer ✗ — {problemTitle}";
+        var notifBody = isAccepted
+            ? $"Bonne réponse ! +{points} pts ajoutés à votre score."
+            : "Vérifiez les espaces et retours à la ligne, puis réessayez.";
+
+        // Enqueue with retry — Hangfire handles scope lifecycle
+        backgroundJobClient.Enqueue<INotificationService>(s =>
+            s.CreateAsync(userId, notifType, notifTitle, notifBody, CancellationToken.None));
 
         if (isAccepted)
-            _ = CheckBadgesAsync(userId, problemId);
+            backgroundJobClient.Enqueue<IBadgeService>(s =>
+                s.CheckAndAwardBadgesAsync(userId, problemId, CancellationToken.None));
 
         return isAccepted
             ? new SubmitSolutionResult("Accepted", $"Accepted ✓ — {problem.Points} points ajoutés à votre score", problem.Points)
@@ -127,47 +130,6 @@ public class SubmissionService(
             .OrderByDescending(s => s.SubmittedAt)
             .Select(s => new SubmissionDto(s.Id, s.SubmittedAt, s.Status.ToString(), s.IsFirstAccepted))
             .ToListAsync(ct);
-    }
-
-    private async Task CheckBadgesAsync(Guid userId, Guid problemId)
-    {
-        try
-        {
-            await using var scope = scopeFactory.CreateAsyncScope();
-            var badgeService = scope.ServiceProvider.GetRequiredService<IBadgeService>();
-            await badgeService.CheckAndAwardBadgesAsync(userId, problemId);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to check badges for user {UserId}", userId);
-        }
-    }
-
-    private async Task SendJudgmentNotificationAsync(Guid userId, string problemTitle, bool isAccepted, int points)
-    {
-        try
-        {
-            // Own scope — request scope may already be disposed when this runs
-            await using var scope = scopeFactory.CreateAsyncScope();
-            var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
-
-            if (isAccepted)
-                await notificationService.CreateAsync(
-                    userId,
-                    NotificationType.SubmissionAccepted,
-                    $"Accepted ✓ — {problemTitle}",
-                    $"Bonne réponse ! +{points} pts ajoutés à votre score.");
-            else
-                await notificationService.CreateAsync(
-                    userId,
-                    NotificationType.SubmissionWrong,
-                    $"Wrong Answer ✗ — {problemTitle}",
-                    "Vérifiez les espaces et retours à la ligne, puis réessayez.");
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to create judgment notification for user {UserId}", userId);
-        }
     }
 
     private static string Normalize(string content)
