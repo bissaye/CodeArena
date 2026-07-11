@@ -31,10 +31,14 @@ builder.Services.AddHangfireServer(options =>
 var app = builder.Build();
 
 // Register recurring job (competition status transitions every minute)
-RecurringJob.AddOrUpdate<CompetitionStatusJob>(
-    "competition-status-update",
-    job => job.ExecuteAsync(CancellationToken.None),
-    Cron.Minutely());
+using (var scope = app.Services.CreateScope())
+{
+    var recurringJobManager = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
+    recurringJobManager.AddOrUpdate<CompetitionStatusJob>(
+        "competition-status-update",
+        job => job.ExecuteAsync(CancellationToken.None),
+        Cron.Minutely());
+}
 
 // Hangfire dashboard — internal only, no auth required (not exposed publicly)
 app.UseHangfireDashboard("/hangfire", new DashboardOptions
