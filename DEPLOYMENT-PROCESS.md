@@ -19,11 +19,13 @@ GitHub (repo privé)
 VPS Hostinger (195.35.3.89)
     ↓ git pull
     ↓ docker compose up --build
-    ├── conteneur PostgreSQL (base de données)
-    ├── conteneur API (.NET)
+    ├── conteneur PostgreSQL (base de données + jobs Hangfire)
+    ├── conteneur Redis (cache distribué + pub/sub SignalR)
+    ├── conteneur API (.NET — API + SignalR hub + Hangfire 3 workers)
+    ├── conteneur Worker (Hangfire 10 workers — emails, badges, notifications)
     └── conteneur Frontend (Angular + nginx)
          ↑
-      nginx (VPS) — reverse proxy HTTPS
+      nginx (VPS) — reverse proxy HTTPS + WebSocket SignalR
          ↑
    https://codearena.bissaye.online
 ```
@@ -408,15 +410,24 @@ JWT_EXPIRY_HOURS=24
 
 FRONTEND_URL=https://codearena.bissaye.online
 # URL du frontend — utilisée par l'API pour configurer CORS
-# CORS = Cross-Origin Resource Sharing = politique de sécurité qui contrôle
-# quels domaines peuvent appeler l'API
 
 UPLOADS_PATH=/app/uploads
 # Chemin interne au conteneur API où stocker les fichiers uploadés
 # (avatars, fichiers de soumission)
 
+REDIS_CONNECTION=redis:6379
+# Connexion au conteneur Redis (host:port interne Docker)
+# Jamais exposé publiquement — réseau interne uniquement
+
 APP_URL=https://codearena.bissaye.online
-# URL de l'app — utilisée pour générer des liens dans les emails (V2)
+# URL de l'app — utilisée pour générer des liens dans les emails
+
+# Email SMTP (Brevo)
+SMTP_HOST=smtp-relay.brevo.com
+SMTP_PORT=587
+SMTP_USER=<login_brevo@smtp-brevo.com>
+SMTP_PASSWORD=<clé_smtp_brevo>
+SMTP_FROM=CodeArena <noreply@bissaye.online>
 ```
 
 ---
@@ -512,6 +523,35 @@ server {
     location /api/ {
         proxy_pass http://localhost:5000/api/;
         client_max_body_size 12M;  # Limite la taille des uploads (fichiers de soumission)
+    }
+
+    # Route vers les fichiers uploadés (avatars)
+    location /uploads/ {
+        proxy_pass http://localhost:5000/uploads/;
+        proxy_cache_valid 200 7d;
+    }
+
+    # Route SignalR WebSocket — OBLIGATOIRE pour les notifications temps réel
+    # Sans ces headers, nginx traite la connexion comme HTTP et coupe le WebSocket
+    location /hubs/ {
+        proxy_pass http://localhost:5000/hubs/;
+        proxy_http_version 1.1;                    # WebSocket nécessite HTTP/1.1
+        proxy_set_header Upgrade $http_upgrade;    # Header de passage en mode WebSocket
+        proxy_set_header Connection "upgrade";     # Indique le changement de protocole
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;                  # 24h — connexion SignalR persistante
+    }
+
+    # Swagger (optionnel — à désactiver en prod si API publique)
+    location /swagger/ {
+        proxy_pass http://localhost:5000/swagger/;
+    }
+
+    # Dashboard Hangfire (Admin uniquement, protégé par JWT côté API)
+    location /hangfire/ {
+        proxy_pass http://localhost:5000/hangfire/;
     }
 }
 ```
@@ -676,14 +716,20 @@ Internet      → 195.35.3.89:5432  ❌ (port fermé)
 
 ```
 Internet
-   ↓ HTTPS:443
+   ↓ HTTPS:443 / WSS (WebSocket)
 nginx (VPS hôte)
-   ├── /api/* → localhost:5000 → conteneur API (.NET)
-   │                                    ↓
-   │                             postgres:5432 → conteneur PostgreSQL
-   │                                    ↑
-   │                             (réseau interne Docker)
-   └── /* → localhost:4200 → conteneur Frontend (Angular)
+   ├── /api/*      → localhost:5000 → conteneur API (.NET)
+   ├── /hubs/*     → localhost:5000 → NotificationHub (SignalR WebSocket)
+   ├── /uploads/*  → localhost:5000 → fichiers statiques (avatars)
+   ├── /hangfire/* → localhost:5000 → dashboard Hangfire (Admin)
+   └── /*          → localhost:4200 → conteneur Frontend (Angular)
+
+Réseau interne Docker :
+   API ──────────────────→ postgres:5432 (PostgreSQL — données app + jobs Hangfire)
+   API ──────────────────→ redis:6379    (IDistributedCache leaderboard 30s)
+   API ──────────────────→ redis:6379    (pub/sub → RedisNotificationRelay → SignalR)
+   Worker (Hangfire) ────→ postgres:5432 (déqueue et exécute les jobs)
+   Worker (Hangfire) ────→ redis:6379    (publie notifications push)
 ```
 
 ---
@@ -697,14 +743,15 @@ ssh root@195.35.3.89
 # Ou via le terminal web Hostinger
 # hpanel.hostinger.com → VPS → Terminal
 
-# Voir l'état de l'app
+# Voir l'état de tous les conteneurs
 docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
 
-# Logs en temps réel
+# Logs en temps réel (tous les services)
 docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f
 
-# Logs API seulement
+# Logs par service
 docker compose -f docker-compose.yml -f docker-compose.prod.yml logs api -f
+docker compose -f docker-compose.yml -f docker-compose.prod.yml logs hangfire -f
 
 # Redémarrer l'app complète
 docker compose -f docker-compose.yml -f docker-compose.prod.yml restart
@@ -717,6 +764,20 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
 # Sauvegarder la base de données
 docker exec codearena-db pg_dump -U codearena_user codearena > backup_$(date +%Y%m%d).sql
+
+# Vérifier que Redis répond
+docker exec codearena-redis redis-cli ping
+# → PONG
+
+# Vérifier les clés Redis (cache leaderboard)
+docker exec codearena-redis redis-cli keys "leaderboard*"
+
+# Accéder au dashboard Hangfire (Admin uniquement)
+# → https://codearena.bissaye.online/hangfire  (se connecter en admin d'abord)
+
+# Vérifier les jobs Hangfire en base
+docker exec codearena-db psql -U codearena_user -d codearena \
+  -c "SELECT key FROM hangfire.hash WHERE key LIKE 'recurring-job:%';"
 
 # Vérifier le certificat SSL
 certbot certificates

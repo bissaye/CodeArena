@@ -1,7 +1,7 @@
 # CodeArena Cameroun — Guide de démo client
 
-> Application complète, tous les sprints 0–6 terminés + améliorations post-sprint.  
-> Build validé le **2026-08-19** — tous les smoke tests passent.
+> Application complète — Sprints 0–6 + V2-1 (emails) + V2-2 (notifications) + V2-3 (badges) + Sprint INFRA (Redis/Hangfire/SignalR).  
+> Build validé le **2026-08-21** — tous les smoke tests passent.
 
 ---
 
@@ -30,6 +30,8 @@ codearena-frontend  | 2026/08/19 ... "GET / HTTP/1.1" 200
 | **Application** | http://localhost:4200 | Interface Angular (prod build) |
 | **API Swagger** | http://localhost:5000/swagger | Documentation interactive |
 | **API Health** | http://localhost:5000/api/health | `{"status":"healthy"}` |
+| **Hangfire Dashboard** | http://localhost:5000/hangfire | Jobs (connecté en Admin) |
+| **Hangfire Worker** | http://localhost:5001/hangfire | Worker interne (sans auth) |
 | **PgAdmin** | http://localhost:5050 | `podman-compose --profile tools up` |
 
 ---
@@ -88,22 +90,35 @@ codearena-frontend  | 2026/08/19 ... "GET / HTTP/1.1" 200
 
 ---
 
-### Étape 4 — Soumission Participant (90s)
+### Étape 4 — Soumission Participant + Notifications temps réel (90s)
 
 1. Se déconnecter → se connecter en `alice_yaounde` / `Test123!`
-2. Aller sur la compétition **CodeArena Challenge Sprint 3 — En cours** (statut Live)
-3. Cliquer sur l'exercice **Fibonacci** → lire l'énoncé Markdown rendu
-4. Cliquer **Télécharger l'entrée** → récupérer `input.txt`
-5. Cliquer **Soumettre** → uploader le fichier résultat `.txt` + fichier source
-6. Résultat **Accepted ✓ — 200 points ajoutés** affiché immédiatement
-7. Naviguer vers le classement → `alice_yaounde` monte dans le classement
+2. Observer la **cloche de notification** dans le header (icône en haut à droite)
+3. Aller sur la compétition **CodeArena Challenge Sprint 3 — En cours** (statut Live)
+4. Cliquer sur l'exercice **Fibonacci** → lire l'énoncé Markdown rendu
+5. Cliquer **Télécharger l'entrée** → récupérer `input.txt`
+6. Cliquer **Soumettre** → uploader le fichier résultat `.txt` + fichier source
+7. Résultat **Accepted ✓ — 200 points ajoutés** affiché immédiatement
+8. **Sans recharger la page** — la cloche se met à jour via SignalR (badge rouge +1)
+9. Si premier Accepted : toast **"Badge débloqué : Premier pas"** apparaît
+10. Cliquer sur la cloche → dropdown des 5 dernières notifications
+11. Naviguer vers `/notifications` → liste complète paginée
+12. Naviguer vers le classement → `alice_yaounde` monte dans le classement
 
 ---
 
-### Étape 5 — Profil & Erreurs (30s)
+### Étape 5 — Profil, Badges & Niveaux (45s)
 
 1. Cliquer sur le pseudo `alice_yaounde` → page profil publique
-2. Modifier le profil → champ **Région** : datalist avec les 10 régions du Cameroun (saisie libre aussi possible)
+2. Section **Niveau** : indicateur coloré (Débutant/Intermédiaire/Avancé/Expert) + barre de progression
+3. Section **Badges** : grille des badges obtenus (icône + date d'obtention)
+4. Les badges non obtenus apparaissent grisés avec leur condition
+
+---
+
+### Étape 6 — Profil & Erreurs (30s)
+
+1. Modifier le profil → champ **Région** : datalist avec les 10 régions du Cameroun (saisie libre aussi possible)
 3. Champ **École** : datalist avec les établissements déjà enregistrés en base
 4. **Enregistrer** → confirmation succès
 5. Uploader un avatar (JPG/PNG < 2 Mo) → redimensionné 200×200 automatiquement
@@ -114,28 +129,37 @@ codearena-frontend  | 2026/08/19 ... "GET / HTTP/1.1" 200
 
 ## 5. Récapitulatif des fonctionnalités
 
-| Fonctionnalité | Statut |
-|---|---|
-| Inscription / Connexion JWT | ✅ |
-| Profil utilisateur + avatar (resize 200×200) | ✅ |
-| Changement de mot de passe | ✅ |
-| Page d'accueil — layout adaptatif (hero card / 2col / grille selon nb compétitions en cours) | ✅ |
-| Compte à rebours temps réel | ✅ |
-| Page `/competitions` — liste paginée, visuels statut, recherche live | ✅ |
-| Bouton "Créer une compétition" sur `/competitions` (visible Modérateur/Admin) | ✅ |
-| Classement global filtré + paginé (7 filtres) | ✅ |
-| Datalist région/école (inscription, profil, filtres classement) | ✅ |
-| Exercices avec rendu Markdown | ✅ |
-| Soumission + jugement automatique (comparaison fichiers) | ✅ |
-| Score transactionnel (pas de double soumission) | ✅ |
-| Back-office Modérateur (créer/modifier compétitions & exercices) | ✅ |
-| Sanitisation Markdown XSS (Markdig côté serveur) | ✅ |
-| Administration (gestion modérateurs) | ✅ |
-| Toast notifications globales | ✅ |
-| Pages 404 / 403 personnalisées | ✅ |
-| Intercepteur HTTP (401→login, 403→/forbidden, 500→toast) | ✅ |
-| Switch FR / EN complet | ✅ |
-| Responsive mobile 375px | ✅ |
+| Fonctionnalité | Sprint | Statut |
+|---|---|---|
+| Inscription / Connexion JWT | S1 | ✅ |
+| Profil utilisateur + avatar (resize 200×200) | S4 | ✅ |
+| Changement de mot de passe | S4 | ✅ |
+| Page d'accueil — layout adaptatif (hero card / 2col / grille) | S2 | ✅ |
+| Compte à rebours temps réel | S2 | ✅ |
+| Page `/competitions` — liste paginée, visuels statut, recherche live | S2 | ✅ |
+| Bouton "Créer une compétition" sur `/competitions` (Modérateur/Admin) | S5 | ✅ |
+| Classement global filtré + paginé (7 filtres) | S4 | ✅ |
+| Datalist région/école (inscription, profil, filtres classement) | S4 | ✅ |
+| Exercices avec rendu Markdown | S3 | ✅ |
+| Soumission + jugement automatique (comparaison fichiers) | S3 | ✅ |
+| Score transactionnel (pas de double soumission) | S3 | ✅ |
+| Back-office Modérateur (créer/modifier compétitions & exercices) | S5 | ✅ |
+| Sanitisation Markdown XSS (Markdig côté serveur) | S5 | ✅ |
+| Administration (gestion modérateurs) | S6 | ✅ |
+| Toast notifications globales | S6 | ✅ |
+| Pages 404 / 403 personnalisées | S6 | ✅ |
+| Intercepteur HTTP (401→login, 403→/forbidden, 500→toast) | S6 | ✅ |
+| Switch FR / EN complet | S6 | ✅ |
+| Responsive mobile 375px | S6 | ✅ |
+| Emails transactionnels (vérification, reset mdp) via Brevo SMTP | V2-1 | ✅ |
+| Récupération de compte (forgot/reset password) | V2-1 | ✅ |
+| Notifications in-app — cloche header, dropdown, page `/notifications` | V2-2 | ✅ |
+| Notifications push temps réel via SignalR (sans polling) | INFRA | ✅ |
+| 7 badges débloquables (first-ac, speed-solver, week-streak, top-10…) | V2-3 | ✅ |
+| Niveaux joueur (Débutant/Intermédiaire/Avancé/Expert sur TotalScore) | V2-3 | ✅ |
+| Toast "Badge débloqué" animé après Accepted | V2-3 | ✅ |
+| Cache leaderboard Redis (IDistributedCache, 30s TTL) | INFRA | ✅ |
+| Jobs Hangfire persistants avec retry (emails, badges, notifications) | INFRA | ✅ |
 
 ---
 
@@ -144,32 +168,27 @@ codearena-frontend  | 2026/08/19 ... "GET / HTTP/1.1" 200
 - **3 compétitions** : 1 Upcoming (Test Publié), 1 Ongoing (CodeArena Challenge Sprint 3), 1 Finished (CodeArena Open 2026)
 - **4 exercices** répartis sur ces compétitions, avec fichiers input/output sur disque
 - **6 utilisateurs** : 1 Admin, 1 Modérateur, 4 Participants (Cameroun, régions différentes)
+- **7 badges** seedés avec IDs fixes (first-ac, speed-solver, week-streak, top-10, top-3-national, centurion, mentor)
 
 ---
 
-## 7. Résultats des smoke tests build final (2026-08-19)
+## 7. Résultats des smoke tests build final (2026-08-21)
 
 | Test | Résultat |
 |---|---|
+| Redis PING → PONG | ✅ |
 | `GET /api/health` → `{"status":"healthy"}` | ✅ |
+| `GET /api/leaderboard` → HTTP 200 | ✅ |
+| Redis keys `leaderboard*` présentes en cache | ✅ |
+| Hangfire Worker → `Server codearena-worker` annoncé | ✅ |
+| Hangfire dashboard `:5001/hangfire` → HTTP 200 | ✅ |
+| Job récurrent `competition-status-update` présent en DB Hangfire | ✅ |
+| SignalR hub `/hubs/notifications` → 401 (endpoint protégé) | ✅ |
 | `POST /api/auth/login` admin → JWT role Admin | ✅ |
-| `POST /api/auth/login` participant → JWT role Participant | ✅ |
-| `GET /api/admin/moderators` sans token → 401 | ✅ |
-| `GET /api/admin/moderators` avec token participant → 403 | ✅ |
 | `GET /api/admin/moderators` avec token admin → 200 | ✅ |
-| `GET /api/health` → `{"status":"healthy"}` | ✅ |
-| `POST /api/auth/login` admin → JWT role Admin | ✅ |
-| `POST /api/auth/login` participant → JWT role Participant | ✅ |
-| `GET /api/admin/moderators` sans token → 401 | ✅ |
-| `GET /api/admin/moderators` avec token participant → 403 | ✅ |
-| `GET /api/admin/moderators` avec token admin → 200 | ✅ |
-| `GET /api/competitions` → 3 compétitions (sans createdAt) | ✅ |
-| `GET /api/competitions/{id}` inexistant → 404 | ✅ |
+| `GET /api/competitions` → 3 compétitions | ✅ |
 | `GET /api/leaderboard/mini` → classement 5 entrées | ✅ |
-| `GET /api/users/regions` → régions distinctes en base | ✅ |
-| `GET /api/users/schools` → établissements distincts en base | ✅ |
 | `POST /api/problems/{id}/submit` réponse correcte → Accepted + 100 pts | ✅ |
 | `POST /api/problems/{id}/submit` double soumission → 409 Conflict | ✅ |
 | Frontend http://localhost:4200 → HTTP 200 | ✅ |
 | Swagger http://localhost:5000/swagger → HTTP 200 | ✅ |
-| Score alice_yaounde mis à jour → 100 pts, rang #1 leaderboard | ✅ |
