@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import * as signalR from '@microsoft/signalr';
 import { NotificationDto, NotificationsPage } from '../models/notification.models';
+import { LeaderboardUpdateEvent } from '../models/leaderboard.models';
 import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
@@ -19,6 +20,9 @@ export class NotificationService {
   private readonly badgeEarnedSubject = new Subject<void>();
   readonly badgeEarned$ = this.badgeEarnedSubject.asObservable();
 
+  private readonly leaderboardUpdateSubject = new Subject<LeaderboardUpdateEvent>();
+  readonly leaderboardUpdate$ = this.leaderboardUpdateSubject.asObservable();
+
   startConnection(): void {
     if (this.hubConnection?.state === signalR.HubConnectionState.Connected) return;
 
@@ -30,12 +34,14 @@ export class NotificationService {
       .build();
 
     this.hubConnection.on('ReceiveNotification', (notification: NotificationDto) => {
-      // Trigger a list refresh so UI shows the new notification
       this.refreshSubject.next();
-      // Announce badge events for the problem page toast
       if (notification.type === 'BadgeEarned') {
         this.badgeEarnedSubject.next();
       }
+    });
+
+    this.hubConnection.on('LeaderboardUpdated', (evt: LeaderboardUpdateEvent) => {
+      this.leaderboardUpdateSubject.next(evt);
     });
 
     this.hubConnection.onreconnecting(() => {

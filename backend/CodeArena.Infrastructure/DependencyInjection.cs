@@ -36,6 +36,8 @@ public static class DependencyInjection
 
         // Notification pusher — publishes to Redis pub/sub, relayed to SignalR by RedisNotificationRelay (API)
         services.AddScoped<INotificationPusher, RedisPublishPusher>();
+        services.AddScoped<ILeaderboardPusher, RedisLeaderboardPusher>();
+        services.AddScoped<ILeaderboardBroadcastService, LeaderboardBroadcastService>();
 
         // CompetitionStatusUpdater BackgroundService replaced by Hangfire recurring job (registered in Program.cs/Worker)
 

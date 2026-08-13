@@ -98,6 +98,15 @@
   }
 }
 
+.leaderboard-row--highlight {
+  animation: mini-highlight 2s ease-out forwards;
+}
+
+@keyframes mini-highlight {
+  0%   { background: var(--color-primary-10); }
+  100% { background: transparent; }
+}
+
 .rank-gold   { background: var(--color-rank-gold); }
 .rank-silver { background: var(--color-rank-silver); }
 .rank-bronze { background: var(--color-rank-bronze); }

@@ -119,7 +119,8 @@
         <div class="sidebar-card">
           <app-leaderboard-mini
             [entries]="leaderboardEntries"
-            [title]="'home.leaderboard.title' | translate" />
+            [title]="'home.leaderboard.title' | translate"
+            [highlightUsername]="highlightedUsername" />
 
           @if (!leaderboardLoading) {
             <a routerLink="/leaderboard" class="btn btn-secondary sidebar-card__cta">

@@ -17,6 +17,13 @@ export interface LeaderboardPage {
   entries: LeaderboardEntry[];
 }
 
+export interface LeaderboardUpdateEvent {
+  competitionId: string;
+  username: string;
+  newScore: number;
+  rank: number;
+}
+
 export interface LeaderboardFilters {
   country?: string;
   region?: string;

@@ -1,11 +1,13 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DatePipe, LowerCasePipe } from '@angular/common';
 import { LeaderboardService } from '../../core/services/leaderboard.service';
 import { CompetitionService } from '../../core/services/competition.service';
 import { UserService } from '../../core/services/user.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { LeaderboardEntry, LeaderboardPage, LeaderboardFilters } from '../../core/models/leaderboard.models';
 import { CompetitionSummary } from '../../core/models/competition.models';
 import { COUNTRIES } from '../../core/constants/countries';
@@ -19,10 +21,11 @@ import { CountryFlagPipe } from '../../shared/pipes/country-flag.pipe';
   templateUrl: './leaderboard.component.html',
   styleUrl: './leaderboard.component.scss',
 })
-export class LeaderboardComponent implements OnInit {
+export class LeaderboardComponent implements OnInit, OnDestroy {
   private readonly leaderboardService = inject(LeaderboardService);
   private readonly competitionService = inject(CompetitionService);
   private readonly userService = inject(UserService);
+  private readonly notifService = inject(NotificationService);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -34,6 +37,14 @@ export class LeaderboardComponent implements OnInit {
   countries = COUNTRIES;
   readonly cameroonRegions = CAMEROON_REGIONS;
   schoolSuggestions: string[] = [];
+  highlightedUsername = '';
+
+  private lbSub?: Subscription;
+  private highlightTimeout?: ReturnType<typeof setTimeout>;
+
+  get isLive(): boolean {
+    return this.competitions.some(c => c.status === 'Ongoing');
+  }
 
   readonly LIMIT = 50;
   currentOffset = 0;
@@ -59,6 +70,25 @@ export class LeaderboardComponent implements OnInit {
     this.loadCompetitions();
     this.loadSchools();
     this.loadLeaderboard();
+
+    this.lbSub = this.notifService.leaderboardUpdate$.subscribe(evt => {
+      const competitionFilter = this.filtersForm.value.competitionId;
+      const relevant = !competitionFilter || competitionFilter === evt.competitionId;
+      if (!relevant) return;
+
+      this.highlightedUsername = evt.username;
+      clearTimeout(this.highlightTimeout);
+      this.highlightTimeout = setTimeout(() => {
+        this.highlightedUsername = '';
+        this.cdr.markForCheck();
+      }, 2000);
+      this.loadLeaderboard(this.currentOffset);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.lbSub?.unsubscribe();
+    clearTimeout(this.highlightTimeout);
   }
 
   loadSchools(): void {
