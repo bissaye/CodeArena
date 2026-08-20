@@ -65,7 +65,9 @@
       "PASSWORDS_MISMATCH": "Les mots de passe ne correspondent pas.",
       "EMAIL_FORMAT": "Adresse email invalide.",
       "CGU_REQUIRED": "Vous devez accepter les CGU pour continuer."
-    },
+    }
+  },
+  "auth": {
     "forgot_password": {
       "title": "Mot de passe oublié",
       "subtitle": "Entrez votre email pour recevoir un lien de réinitialisation.",
