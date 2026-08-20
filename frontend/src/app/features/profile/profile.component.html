@@ -17,6 +17,23 @@
 
   <!-- Profile -->
   @if (!isLoading && profile) {
+
+    <!-- Bannière email non vérifié (visible uniquement pour le propriétaire) -->
+    @if (isOwner && !profile.emailVerifiedAt && profile.username === authService.currentUser?.username) {
+      <div class="email-banner">
+        <span class="email-banner__icon">✉️</span>
+        <span class="email-banner__text">{{ 'profile.email_not_verified' | translate }}</span>
+        <button
+          class="btn btn--sm btn--outline email-banner__btn"
+          [disabled]="isResendingVerification"
+          (click)="resendVerification()"
+        >
+          @if (isResendingVerification) { <span class="spinner-sm"></span> }
+          {{ 'profile.resend_verification' | translate }}
+        </button>
+      </div>
+    }
+
     <div class="profile-layout">
 
       <!-- Left column: card profil -->

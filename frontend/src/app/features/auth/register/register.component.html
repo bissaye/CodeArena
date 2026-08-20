@@ -110,10 +110,10 @@
           }
         </div>
 
-        <!-- Email (optionnel) -->
+        <!-- Email (obligatoire depuis V2) -->
         <div class="form-group">
           <label class="form-label" for="email">
-            {{ 'AUTH.REGISTER.EMAIL_LABEL' | translate }}
+            {{ 'AUTH.REGISTER.EMAIL_LABEL' | translate }} <span class="form-label__required">*</span>
           </label>
           <input
             id="email"
@@ -124,9 +124,14 @@
             [placeholder]="'AUTH.REGISTER.EMAIL_PLACEHOLDER' | translate"
             autocomplete="email"
           />
-          @if (f.email.invalid && f.email.touched) {
-            <span class="form-hint form-hint--error">{{ 'AUTH.VALIDATION.EMAIL_FORMAT' | translate }}</span>
+          @if (f.email.touched) {
+            @if (f.email.hasError('required')) {
+              <span class="form-hint form-hint--error">{{ 'AUTH.VALIDATION.REQUIRED' | translate }}</span>
+            } @else if (f.email.hasError('email')) {
+              <span class="form-hint form-hint--error">{{ 'AUTH.VALIDATION.EMAIL_FORMAT' | translate }}</span>
+            }
           }
+          <span class="form-hint">{{ 'AUTH.REGISTER.EMAIL_HINT' | translate }}</span>
         </div>
 
         <!-- Téléphone + Région -->

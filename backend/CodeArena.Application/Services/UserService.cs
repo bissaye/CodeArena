@@ -59,6 +59,7 @@ public class UserService(
             competitionScore,
             nationalRank,
             user.CreatedAt,
+            user.EmailVerifiedAt,
             recentActivity);
     }
 

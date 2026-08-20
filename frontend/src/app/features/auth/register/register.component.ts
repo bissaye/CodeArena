@@ -47,7 +47,7 @@ export class RegisterComponent implements OnInit {
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required]],
       country: ['', [Validators.required]],
-      email: ['', [Validators.email]],
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
       phoneNumber: [''],
       region: [''],
       school: [''],
@@ -73,12 +73,11 @@ export class RegisterComponent implements OnInit {
     this.isLoading = true;
     this.error = null;
 
-    const { confirmPassword, acceptCgu, email, phoneNumber, region, school, ...request } = this.form.getRawValue();
+    const { confirmPassword, acceptCgu, phoneNumber, region, school, ...request } = this.form.getRawValue();
 
     this.authService
       .register({
         ...request,
-        email: email || undefined,
         phoneNumber: phoneNumber || undefined,
         region: region || undefined,
         school: school || undefined,

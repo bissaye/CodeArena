@@ -10,6 +10,8 @@ public interface IAppDbContext
     DbSet<Problem> Problems { get; }
     DbSet<Submission> Submissions { get; }
     DbSet<UserProblemStatus> UserProblemStatuses { get; }
+    DbSet<EmailVerification> EmailVerifications { get; }
+    DbSet<PasswordResetToken> PasswordResetTokens { get; }
 
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

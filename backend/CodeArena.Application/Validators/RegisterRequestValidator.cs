@@ -20,8 +20,9 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
             .NotEmpty().WithMessage("Le pays est obligatoire.");
 
         RuleFor(x => x.Email)
+            .NotEmpty().WithMessage("L'adresse email est obligatoire.")
             .EmailAddress().WithMessage("L'adresse email est invalide.")
-            .When(x => !string.IsNullOrWhiteSpace(x.Email));
+            .MaximumLength(255);
 
         RuleFor(x => x.PhoneNumber)
             .MaximumLength(20).WithMessage("Le numéro de téléphone ne peut pas dépasser 20 caractères.")

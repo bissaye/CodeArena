@@ -25,7 +25,8 @@
       "ERROR_INVALID": "Identifiants incorrects. Vérifiez votre pseudonyme et votre mot de passe.",
       "ERROR_GENERIC": "Une erreur est survenue. Veuillez réessayer.",
       "NO_ACCOUNT": "Pas encore de compte ?",
-      "REGISTER_LINK": "S'inscrire"
+      "REGISTER_LINK": "S'inscrire",
+      "FORGOT_PASSWORD": "Mot de passe oublié ?"
     },
     "REGISTER": {
       "TITLE": "Créer un compte",
@@ -36,8 +37,9 @@
       "PASSWORD_PLACEHOLDER": "Minimum 8 caractères",
       "CONFIRM_PASSWORD_LABEL": "Confirmer le mot de passe",
       "CONFIRM_PASSWORD_PLACEHOLDER": "Répétez votre mot de passe",
-      "EMAIL_LABEL": "Email (optionnel)",
+      "EMAIL_LABEL": "Adresse email",
       "EMAIL_PLACEHOLDER": "votre@email.com",
+      "EMAIL_HINT": "Nécessaire pour récupérer votre compte en cas d'oubli de mot de passe.",
       "PHONE_LABEL": "Téléphone (optionnel)",
       "PHONE_PLACEHOLDER": "+237 6XX XXX XXX",
       "COUNTRY_LABEL": "Pays",
@@ -63,6 +65,37 @@
       "PASSWORDS_MISMATCH": "Les mots de passe ne correspondent pas.",
       "EMAIL_FORMAT": "Adresse email invalide.",
       "CGU_REQUIRED": "Vous devez accepter les CGU pour continuer."
+    },
+    "forgot_password": {
+      "title": "Mot de passe oublié",
+      "subtitle": "Entrez votre email pour recevoir un lien de réinitialisation.",
+      "email_label": "Adresse email",
+      "email_placeholder": "votre@email.com",
+      "submit": "Envoyer le lien",
+      "success": "Si cette adresse est associée à un compte, vous recevrez un email dans quelques instants.",
+      "back_to_login": "← Retour à la connexion",
+      "error_generic": "Une erreur est survenue. Veuillez réessayer."
+    },
+    "reset_password": {
+      "title": "Nouveau mot de passe",
+      "new_password_label": "Nouveau mot de passe",
+      "confirm_password_label": "Confirmer le mot de passe",
+      "submit": "Réinitialiser mon mot de passe",
+      "success": "Votre mot de passe a été réinitialisé avec succès.",
+      "go_to_login": "Se connecter",
+      "error_no_token": "Lien invalide. Veuillez refaire une demande de réinitialisation.",
+      "error_mismatch": "Les mots de passe ne correspondent pas.",
+      "error_invalid_token": "Ce lien a expiré ou est déjà utilisé. Veuillez refaire une demande.",
+      "error_generic": "Une erreur est survenue. Veuillez réessayer."
+    },
+    "verify_email": {
+      "loading": "Vérification en cours…",
+      "success_title": "Email vérifié !",
+      "success_body": "Votre adresse email a bien été confirmée.",
+      "go_to_login": "Se connecter",
+      "error_title": "Lien invalide",
+      "error_body": "Ce lien de vérification a expiré ou a déjà été utilisé.",
+      "back_to_login": "Retour à la connexion"
     }
   },
   "ERRORS": {
@@ -201,6 +234,10 @@
     "save_avatar": "Enregistrer l'avatar",
     "edit_profile": "Modifier mon profil",
     "admin_link": "Administration",
+    "email_not_verified": "Votre adresse email n'est pas encore vérifiée.",
+    "resend_verification": "Renvoyer l'email",
+    "verification_sent": "Email de vérification envoyé !",
+    "verification_error": "Impossible d'envoyer l'email. Réessayez dans quelques instants.",
     "change_password": "Changer mon mot de passe",
     "save_success": "Profil mis à jour avec succès.",
     "password_success": "Mot de passe changé avec succès.",

@@ -12,6 +12,8 @@ public class CodeArenaDbContext(DbContextOptions<CodeArenaDbContext> options)
     public DbSet<Problem> Problems => Set<Problem>();
     public DbSet<Submission> Submissions => Set<Submission>();
     public DbSet<UserProblemStatus> UserProblemStatuses => Set<UserProblemStatus>();
+    public DbSet<EmailVerification> EmailVerifications => Set<EmailVerification>();
+    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
