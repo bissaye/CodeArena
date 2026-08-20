@@ -1,0 +1,360 @@
+{
+  "APP": {
+    "TITLE": "CodeArena Cameroon",
+    "TAGLINE": "Cameroon's competitive programming platform"
+  },
+  "NAV": {
+    "HOME": "Home",
+    "COMPETITIONS": "Competitions",
+    "LEADERBOARD": "Leaderboard",
+    "LOGIN": "Login",
+    "REGISTER": "Sign up",
+    "PROFILE": "My profile",
+    "LOGOUT": "Logout"
+  },
+  "AUTH": {
+    "LOGIN": {
+      "TITLE": "Login",
+      "SUBTITLE": "Sign in to your account",
+      "USERNAME_LABEL": "Username",
+      "USERNAME_PLACEHOLDER": "Your username",
+      "PASSWORD_LABEL": "Password",
+      "PASSWORD_PLACEHOLDER": "Your password",
+      "SUBMIT": "Sign in",
+      "LOADING": "Signing in…",
+      "ERROR_INVALID": "Invalid credentials. Check your username and password.",
+      "ERROR_GENERIC": "An error occurred. Please try again.",
+      "NO_ACCOUNT": "No account yet?",
+      "REGISTER_LINK": "Sign up"
+    },
+    "REGISTER": {
+      "TITLE": "Create an account",
+      "SUBTITLE": "Join the CodeArena community",
+      "USERNAME_LABEL": "Username",
+      "USERNAME_PLACEHOLDER": "3 to 30 characters (letters, numbers, hyphens)",
+      "PASSWORD_LABEL": "Password",
+      "PASSWORD_PLACEHOLDER": "At least 8 characters",
+      "CONFIRM_PASSWORD_LABEL": "Confirm password",
+      "CONFIRM_PASSWORD_PLACEHOLDER": "Repeat your password",
+      "EMAIL_LABEL": "Email (optional)",
+      "EMAIL_PLACEHOLDER": "your@email.com",
+      "PHONE_LABEL": "Phone (optional)",
+      "PHONE_PLACEHOLDER": "+237 6XX XXX XXX",
+      "COUNTRY_LABEL": "Country",
+      "COUNTRY_PLACEHOLDER": "Select your country",
+      "REGION_LABEL": "Region (optional)",
+      "REGION_PLACEHOLDER": "Your region",
+      "SCHOOL_LABEL": "School / University (optional)",
+      "SCHOOL_PLACEHOLDER": "Your institution",
+      "CGU_LABEL": "I accept the terms and conditions",
+      "SUBMIT": "Create my account",
+      "LOADING": "Creating account…",
+      "SUCCESS": "Account created successfully! You can now log in.",
+      "ERROR_USERNAME_TAKEN": "This username is already taken.",
+      "ERROR_EMAIL_TAKEN": "This email is already associated with an account.",
+      "ERROR_GENERIC": "An error occurred. Please try again.",
+      "ALREADY_ACCOUNT": "Already have an account?",
+      "LOGIN_LINK": "Log in"
+    },
+    "VALIDATION": {
+      "REQUIRED": "This field is required.",
+      "USERNAME_FORMAT": "3 to 30 characters: letters, numbers and hyphens only.",
+      "PASSWORD_MIN": "Password must be at least 8 characters.",
+      "PASSWORDS_MISMATCH": "Passwords do not match.",
+      "EMAIL_FORMAT": "Invalid email address.",
+      "CGU_REQUIRED": "You must accept the terms and conditions to continue."
+    }
+  },
+  "ERRORS": {
+    "NOT_FOUND": "Page not found",
+    "FORBIDDEN": "Access denied",
+    "SERVER": "Server error. Please try again later."
+  },
+  "common": {
+    "loading": "Loading…",
+    "back": "Back",
+    "backHome": "Back to home",
+    "save": "Save",
+    "cancel": "Cancel",
+    "retry": "Retry",
+    "prev_page": "Previous page",
+    "next_page": "Next page"
+  },
+  "home": {
+    "hero": {
+      "title": "CodeArena Cameroon",
+      "subtitle": "The competitive programming platform open to all Cameroonian developers."
+    },
+    "section": {
+      "ongoing": "Ongoing competitions",
+      "upcoming": "Upcoming",
+      "finished": "Past competitions",
+      "seeAll": "See all →"
+    },
+    "empty": {
+      "finished": "No past competitions",
+      "finishedSub": "Upcoming competitions will appear here when they end.",
+      "noCompetitions": "No competitions yet",
+      "noCompetitionsSub": "Competitions will be announced soon. Check back later!"
+    },
+    "leaderboard": {
+      "title": "Top programmers",
+      "seeAll": "See full leaderboard"
+    },
+    "hero_competition": {
+      "badge": "Live",
+      "cta": "Join now"
+    },
+    "error": {
+      "loadCompetitions": "Failed to load competitions. Please try again."
+    }
+  },
+  "competitions": {
+    "title": "All Competitions",
+    "search": "Search a competition",
+    "search_placeholder": "Search a competition…",
+    "empty": "No competition found.",
+    "showing": "Showing",
+    "of": "of",
+    "col": {
+      "name": "Name",
+      "status": "Status",
+      "startDate": "Start",
+      "endDate": "End",
+      "problems": "Problems"
+    },
+    "error": {
+      "load": "Failed to load competitions. Please try again."
+    }
+  },
+  "competition": {
+    "status": {
+      "draft": "Draft",
+      "upcoming": "Upcoming",
+      "ongoing": "Live",
+      "finished": "Finished"
+    },
+    "endsIn": "Ends in",
+    "startsIn": "Starts in",
+    "error": {
+      "load": "Failed to load competition.",
+      "notFound": "Competition not found."
+    },
+    "problems": {
+      "label": "problem(s)",
+      "title": "Problems",
+      "empty": "No problems yet",
+      "emptySub": "Problems will be added before the competition starts.",
+      "colTitle": "Title",
+      "colPoints": "Points",
+      "colSubmissions": "Submissions",
+      "colAC": "Accepted",
+      "colRate": "Rate",
+      "solved": "Solved"
+    },
+    "leaderboard": {
+      "title": "Leaderboard — Top 10",
+      "seeAll": "See full leaderboard"
+    }
+  },
+  "leaderboard": {
+    "title": "Global Leaderboard",
+    "empty": "No participants match the filters.",
+    "refreshed_at": "Updated at",
+    "programmers": "programmer(s)",
+    "showing": "Showing",
+    "of": "of",
+    "col": {
+      "rank": "Rank",
+      "user": "User",
+      "country": "Country",
+      "region": "Region",
+      "score": "Score"
+    },
+    "filter": {
+      "search": "Search username",
+      "search_placeholder": "Enter a username…",
+      "country": "Country",
+      "all_countries": "All countries",
+      "region": "Region",
+      "region_placeholder": "Select a region…",
+      "school": "School",
+      "school_placeholder": "Search an institution…",
+      "competition": "Competition",
+      "all_competitions": "All competitions",
+      "score_range": "Score range",
+      "competition_only": "Competition scores only",
+      "competition_only_tooltip": "Excludes scores earned in finished competitions used as training",
+      "apply": "Apply",
+      "reset": "Reset"
+    },
+    "error": {
+      "generic": "Failed to load leaderboard. Please try again."
+    }
+  },
+  "profile": {
+    "total_score": "Total score",
+    "competition_score": "Competition score",
+    "national_rank": "National rank",
+    "member_since": "Member since",
+    "change_avatar": "Change avatar",
+    "save_avatar": "Save avatar",
+    "edit_profile": "Edit profile",
+    "admin_link": "Administration",
+    "change_password": "Change password",
+    "save_success": "Profile updated successfully.",
+    "password_success": "Password changed successfully.",
+    "country": "Country",
+    "region": "Region",
+    "region_placeholder": "Select or type your region",
+    "school": "School / University",
+    "school_placeholder": "Select or type your institution",
+    "current_password": "Current password",
+    "new_password": "New password",
+    "confirm_password": "Confirm new password",
+    "recent_activity": "Recent activity",
+    "no_activity": "No activity yet.",
+    "activity": {
+      "problem": "Problem",
+      "competition": "Competition",
+      "status": "Status",
+      "date": "Date"
+    },
+    "error": {
+      "not_found": "Profile not found.",
+      "generic": "Failed to load profile.",
+      "save_failed": "Error while saving.",
+      "avatar_failed": "Error uploading avatar.",
+      "password_failed": "Error changing password.",
+      "passwords_mismatch": "Passwords do not match."
+    }
+  },
+  "problem": {
+    "stats": {
+      "total": "Submissions",
+      "accepted": "Accepted",
+      "rate": "Rate"
+    },
+    "download": "Download input.txt",
+    "submit": {
+      "title": "Submit your solution",
+      "resultLabel": "Result file (result.txt)",
+      "resultHint": ".txt files only, max 5 MB",
+      "sourceLabel": "Source code (optional)",
+      "sourceHint": "Formats: .c .cpp .py .java .js — max 5 MB",
+      "btn": "Submit",
+      "judging": "Judging…",
+      "alreadySolved": "You have already solved this problem.",
+      "notOngoing": "Submissions are only accepted during the competition.",
+      "wrong": "Wrong Answer ✗ — Check whitespace and line endings.",
+      "errorAlreadySolved": "You have already solved this problem.",
+      "errorInvalid": "Invalid file. Check the format.",
+      "errorGeneric": "An error occurred. Please try again."
+    },
+    "history": {
+      "title": "My submissions",
+      "empty": "No submissions yet.",
+      "colDate": "Date",
+      "colStatus": "Status",
+      "colFirst": "First AC",
+      "firstAC": "First accepted submission on this problem"
+    },
+    "error": {
+      "notFound": "Problem not found.",
+      "load": "Failed to load problem."
+    }
+  },
+  "errors": {
+    "not_found": {
+      "title": "Page not found",
+      "message": "The page you are looking for does not exist or has been moved."
+    },
+    "forbidden": {
+      "title": "Access denied",
+      "message": "You do not have permission to access this page."
+    }
+  },
+  "admin": {
+    "moderators": {
+      "title": "Moderator Management",
+      "subtitle": "Add or remove moderators to manage competitions.",
+      "add_title": "Add a Moderator",
+      "add_btn": "Add",
+      "list_title": "Current Moderators",
+      "empty": "No moderators",
+      "empty_sub": "Add moderators so they can create competitions.",
+      "remove_btn": "Remove",
+      "confirm_title": "Confirm removal",
+      "confirm_body": "Are you sure you want to remove {{ username }} from the moderator role?",
+      "confirm_btn": "Remove",
+      "col": {
+        "username": "Username",
+        "promoted_at": "Promoted on",
+        "actions": "Actions"
+      },
+      "field": {
+        "username": "Username",
+        "username_placeholder": "e.g. alice_yaounde"
+      },
+      "error": {
+        "load": "Failed to load moderators.",
+        "user_not_found": "User not found.",
+        "already_moderator": "This user is already a moderator.",
+        "self_remove": "You cannot remove yourself.",
+        "save": "An error occurred. Please try again.",
+        "remove": "Error while removing moderator."
+      }
+    },
+    "competition": {
+      "create_title": "Create a Competition",
+      "edit_title": "Edit Competition",
+      "edit_btn": "Edit",
+      "field": {
+        "name": "Competition Name",
+        "name_placeholder": "e.g. CodeArena Open 2026",
+        "start_date": "Start Date",
+        "start_time": "Start Time",
+        "duration_hours": "Duration (hours)",
+        "duration_minutes": "Duration (minutes)",
+        "publish": "Publish immediately",
+        "publish_hint": "Check to set status to 'Upcoming' (cannot be undone)."
+      },
+      "error": {
+        "name_required": "Name is required.",
+        "load": "Failed to load competition.",
+        "save": "An error occurred while saving."
+      }
+    },
+    "problem": {
+      "create_title": "Add a Problem",
+      "edit_title": "Edit Problem",
+      "edit_btn": "Edit Problem",
+      "add_btn": "Add Problem",
+      "show_preview": "Markdown Preview",
+      "hide_preview": "Hide Preview",
+      "preview_label": "Preview",
+      "output_private": "Private",
+      "download_current_input": "Download current input.txt",
+      "download_current_output": "Download current output.txt",
+      "replace_input": "Replace input file",
+      "replace_output": "Replace output file",
+      "field": {
+        "title": "Title",
+        "title_placeholder": "e.g. Maximum of three integers",
+        "body": "Statement (Markdown)",
+        "body_placeholder": "## Description\n\n...",
+        "points": "Points",
+        "input_file": "Input file (input.txt)",
+        "output_file": "Output file (solution — private)",
+        "txt_only": ".txt files only, max 5 MB."
+      },
+      "error": {
+        "title_required": "Title is required.",
+        "body_required": "Statement is required.",
+        "files_required": "Input and output files are required.",
+        "load": "Failed to load problem.",
+        "save": "An error occurred while saving."
+      }
+    }
+  }
+}

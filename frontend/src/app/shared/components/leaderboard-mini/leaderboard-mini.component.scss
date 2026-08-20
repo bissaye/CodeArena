@@ -1,0 +1,112 @@
+.leaderboard-mini {
+  &__title {
+    font-family: var(--font-display);
+    font-size: var(--text-subtitle);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-4);
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+.leaderboard-row {
+  display: grid;
+  grid-template-columns: 4px 28px 32px 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  transition: background 0.15s;
+
+  &:hover {
+    background: var(--color-surface-raised);
+  }
+
+  &__rank-bar {
+    height: 28px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  &__rank {
+    font-family: var(--font-mono);
+    font-size: var(--text-small);
+    color: var(--color-text-secondary);
+    text-align: center;
+  }
+
+  &__avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    background: var(--color-surface-raised);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__initials {
+    font-family: var(--font-mono);
+    font-size: var(--text-small);
+    font-weight: 600;
+    color: var(--color-primary-light);
+  }
+
+  &__username {
+    font-family: var(--font-mono);
+    font-size: var(--text-small);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &:hover {
+      color: var(--color-primary-light);
+    }
+  }
+
+  &__country {
+    font-size: var(--text-small);
+    color: var(--color-text-secondary);
+
+    @media (max-width: 480px) {
+      display: none;
+    }
+  }
+
+  &__score {
+    font-family: var(--font-mono);
+    font-size: var(--text-small);
+    font-weight: 600;
+    color: var(--color-accent);
+    min-width: 3ch;
+    text-align: right;
+  }
+}
+
+.rank-gold   { background: var(--color-rank-gold); }
+.rank-silver { background: var(--color-rank-silver); }
+.rank-bronze { background: var(--color-rank-bronze); }
+.rank-green  { background: var(--color-rank-green); }
+.rank-default{ background: var(--color-rank-default); }
+
+.empty-state--compact {
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: var(--text-small);
+}

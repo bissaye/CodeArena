@@ -1,0 +1,82 @@
+<header class="header">
+  <a routerLink="/" class="header__logo">
+    <span class="logo-dot">●</span> CodeArena
+  </a>
+
+  <nav class="header__nav">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+      {{ 'NAV.HOME' | translate }}
+    </a>
+    <a routerLink="/competitions" routerLinkActive="active">
+      {{ 'NAV.COMPETITIONS' | translate }}
+    </a>
+    <a routerLink="/leaderboard" routerLinkActive="active">
+      {{ 'NAV.LEADERBOARD' | translate }}
+    </a>
+    @if ((currentUser$ | async)?.role === 'Admin') {
+      <a routerLink="/admin" routerLinkActive="active">
+        {{ 'profile.admin_link' | translate }}
+      </a>
+    }
+  </nav>
+
+  <div class="header__actions">
+    <!-- Language switcher -->
+    <div class="header__lang">
+      <button
+        class="lang-btn"
+        [class.lang-btn--active]="currentLang === 'fr'"
+        (click)="switchLang('fr')"
+        aria-label="Français">
+        FR
+      </button>
+      <span class="lang-sep">|</span>
+      <button
+        class="lang-btn"
+        [class.lang-btn--active]="currentLang === 'en'"
+        (click)="switchLang('en')"
+        aria-label="English">
+        EN
+      </button>
+    </div>
+
+    @if (currentUser$ | async; as user) {
+      <div class="header__user" (click)="toggleDropdown()">
+        <div class="header__avatar">{{ getInitials(user.username) }}</div>
+        <span class="header__username">{{ user.username }}</span>
+        <svg class="header__caret" [class.header__caret--open]="dropdownOpen"
+          width="12" height="8" viewBox="0 0 12 8" fill="currentColor">
+          <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5"
+            stroke-linecap="round" fill="none"/>
+        </svg>
+
+        @if (dropdownOpen) {
+          <div class="header__dropdown">
+            <a [routerLink]="['/u', user.username]" class="header__dropdown-item"
+              (click)="dropdownOpen = false">
+              {{ 'NAV.PROFILE' | translate }}
+            </a>
+            @if (user.role === 'Admin') {
+              <a routerLink="/admin" class="header__dropdown-item"
+                (click)="dropdownOpen = false">
+                {{ 'profile.admin_link' | translate }}
+              </a>
+            }
+            <hr class="header__dropdown-divider" />
+            <button class="header__dropdown-item header__dropdown-item--danger"
+              (click)="logout()">
+              {{ 'NAV.LOGOUT' | translate }}
+            </button>
+          </div>
+        }
+      </div>
+    } @else {
+      <a routerLink="/login" class="btn btn-secondary btn--sm">
+        {{ 'NAV.LOGIN' | translate }}
+      </a>
+      <a routerLink="/register" class="btn btn-primary btn--sm">
+        {{ 'NAV.REGISTER' | translate }}
+      </a>
+    }
+  </div>
+</header>

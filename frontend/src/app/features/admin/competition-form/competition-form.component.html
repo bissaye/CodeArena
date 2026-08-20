@@ -1,0 +1,74 @@
+<div class="page-container">
+  <div class="form-page-header">
+    <h1 class="page-title">
+      {{ (isEditMode ? 'admin.competition.edit_title' : 'admin.competition.create_title') | translate }}
+    </h1>
+    <a [routerLink]="isEditMode && competitionId ? ['/competitions', competitionId] : ['/']" class="btn btn-secondary">
+      {{ 'common.cancel' | translate }}
+    </a>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+    </div>
+  }
+
+  @if (!isLoading) {
+    <form [formGroup]="form" (ngSubmit)="save()" class="admin-form">
+
+      @if (error) {
+        <div class="alert alert-error">{{ error | translate }}</div>
+      }
+
+      <div class="form-group">
+        <label class="form-label required">{{ 'admin.competition.field.name' | translate }}</label>
+        <input formControlName="name" class="form-input" type="text"
+               [placeholder]="'admin.competition.field.name_placeholder' | translate" />
+        @if (form.controls['name'].invalid && form.controls['name'].touched) {
+          <span class="form-error">{{ 'admin.competition.error.name_required' | translate }}</span>
+        }
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label required">{{ 'admin.competition.field.start_date' | translate }}</label>
+          <input formControlName="startDate" class="form-input" type="date" />
+        </div>
+        <div class="form-group">
+          <label class="form-label required">{{ 'admin.competition.field.start_time' | translate }}</label>
+          <input formControlName="startTime" class="form-input" type="time" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label required">{{ 'admin.competition.field.duration_hours' | translate }}</label>
+          <input formControlName="durationHours" class="form-input" type="number" min="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label required">{{ 'admin.competition.field.duration_minutes' | translate }}</label>
+          <input formControlName="durationMinutes" class="form-input" type="number" min="0" max="59" />
+        </div>
+      </div>
+
+      <div class="form-group form-group--checkbox">
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="publish" class="checkbox" />
+          {{ 'admin.competition.field.publish' | translate }}
+        </label>
+        <span class="form-hint">{{ 'admin.competition.field.publish_hint' | translate }}</span>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isSaving">
+          @if (isSaving) {
+            <span class="spinner spinner--sm"></span>
+          }
+          {{ 'common.save' | translate }}
+        </button>
+      </div>
+
+    </form>
+  }
+</div>

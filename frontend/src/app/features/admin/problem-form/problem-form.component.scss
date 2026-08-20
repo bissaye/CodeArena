@@ -1,0 +1,105 @@
+.form-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-xl);
+}
+
+.admin-form {
+  max-width: 900px;
+}
+
+.form-input--short {
+  max-width: 160px;
+}
+
+.body-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-xs);
+}
+
+.editor-preview-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-md);
+
+  &.split-active {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.body-editor {
+  resize: vertical;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+.markdown-preview {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: auto;
+}
+
+.preview-label {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.markdown-body {
+  padding: var(--spacing-md);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.existing-file {
+  margin-bottom: var(--spacing-sm);
+}
+
+.file-link {
+  color: var(--color-primary);
+  font-size: var(--text-sm);
+  text-decoration: underline;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.alert {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.alert-error {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger, #ef4444);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.badge--warning {
+  font-size: var(--text-xs);
+  background: rgba(234, 179, 8, 0.2);
+  color: #92400e;
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  padding: 0 var(--spacing-xs);
+  border-radius: var(--radius-sm);
+  margin-left: var(--spacing-xs);
+}
+
+.form-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-xl);
+}

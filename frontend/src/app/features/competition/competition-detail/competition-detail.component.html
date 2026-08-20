@@ -1,0 +1,101 @@
+@if (isLoading) {
+  <main class="page-container loading-state" role="status">
+    <div class="spinner"></div>
+    <p>{{ 'common.loading' | translate }}</p>
+  </main>
+} @else if (error || !competition) {
+  <main class="page-container error-state" role="alert">
+    <p>{{ (error ?? 'competition.error.notFound') | translate }}</p>
+    <a routerLink="/" class="btn btn-secondary">{{ 'common.backHome' | translate }}</a>
+  </main>
+} @else {
+  <main class="page-container">
+
+    <!-- En-tête compétition -->
+    <div class="comp-header">
+      <div class="comp-header__info">
+        <a routerLink="/" class="comp-header__back">← {{ 'common.back' | translate }}</a>
+        <h1 class="comp-header__title">{{ competition.name }}</h1>
+        @if (isModerator) {
+          <div class="moderator-actions">
+            <a [routerLink]="['/competitions', competition.id, 'edit']" class="btn btn-secondary btn--sm">
+              ✏ {{ 'admin.competition.edit_btn' | translate }}
+            </a>
+            <a [routerLink]="['/competitions', competition.id, 'problems', 'new']" class="btn btn-primary btn--sm">
+              + {{ 'admin.problem.add_btn' | translate }}
+            </a>
+          </div>
+        }
+        <div class="comp-header__meta">
+          @if (isOngoing) {
+            <span class="badge badge--live">● {{ 'competition.status.ongoing' | translate }}</span>
+            <span class="comp-header__timer-wrap">
+              {{ 'competition.endsIn' | translate }}
+              <app-countdown-timer [endsAt]="competition.endDate" />
+            </span>
+          }
+          @if (isFinished) {
+            <span class="badge badge--finished">{{ 'competition.status.finished' | translate }}</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Liste des exercices -->
+    <section class="section">
+      <h2 class="section__title">{{ 'competition.problems.title' | translate }}</h2>
+
+      @if (competition.problems.length === 0) {
+        <div class="empty-state">
+          <div class="empty-state__icon">⚙️</div>
+          <h3>{{ 'competition.problems.empty' | translate }}</h3>
+          <p>{{ 'competition.problems.emptySub' | translate }}</p>
+        </div>
+      } @else {
+        <div class="problems-table">
+          <div class="problems-table__header">
+            <span>{{ 'competition.problems.colTitle' | translate }}</span>
+            <span>{{ 'competition.problems.colPoints' | translate }}</span>
+            <span>{{ 'competition.problems.colSubmissions' | translate }}</span>
+            <span>{{ 'competition.problems.colAC' | translate }}</span>
+            <span>{{ 'competition.problems.colRate' | translate }}</span>
+            <span></span>
+          </div>
+
+          @for (problem of competition.problems; track problem.id) {
+            <a [routerLink]="['/problems', problem.id]"
+               class="problems-table__row"
+               [class.problems-table__row--solved]="problem.solvedByCurrentUser === true">
+
+              <span class="problems-table__title">
+                {{ problem.title }}
+                @if (problem.solvedByCurrentUser === true) {
+                  <span class="badge badge--solved" aria-label="{{ 'competition.problems.solved' | translate }}">
+                    ✓ {{ 'competition.problems.solved' | translate }}
+                  </span>
+                }
+              </span>
+              <span class="problems-table__points">{{ problem.points }} pts</span>
+              <span class="problems-table__stat">{{ problem.totalSubmissions }}</span>
+              <span class="problems-table__stat">{{ problem.acceptedSubmissions }}</span>
+              <span class="problems-table__rate">{{ acceptanceRate(problem) }}%</span>
+              <span class="problems-table__arrow">→</span>
+            </a>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- Leaderboard top-10 -->
+    <section class="section">
+      <app-leaderboard-mini
+        [entries]="leaderboard"
+        [title]="'competition.leaderboard.title' | translate" />
+
+      <a [routerLink]="['/leaderboard']" class="btn btn-secondary leaderboard-cta">
+        {{ 'competition.leaderboard.seeAll' | translate }}
+      </a>
+    </section>
+
+  </main>
+}

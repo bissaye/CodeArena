@@ -1,0 +1,31 @@
+<div class="leaderboard-mini">
+  @if (title) {
+    <h3 class="leaderboard-mini__title">{{ title }}</h3>
+  }
+
+  @if (entries.length === 0) {
+    <div class="empty-state empty-state--compact">
+      <p>{{ 'leaderboard.empty' | translate }}</p>
+    </div>
+  } @else {
+    <div class="leaderboard-mini__list">
+      @for (entry of entries; track entry.userId) {
+        <div class="leaderboard-row">
+          <div class="leaderboard-row__rank-bar" [class]="getRankClass(entry.rank)"></div>
+          <span class="leaderboard-row__rank">{{ entry.rank }}</span>
+          <div class="leaderboard-row__avatar" [attr.aria-label]="entry.username">
+            @if (entry.avatarUrl) {
+              <img [src]="entry.avatarUrl" [alt]="entry.username" width="32" height="32" />
+            } @else {
+              <span class="leaderboard-row__initials">{{ getInitials(entry.username) }}</span>
+            }
+          </div>
+          <a [routerLink]="['/u', entry.username]" class="leaderboard-row__username">
+            {{ entry.username }}
+          </a>
+          <span class="leaderboard-row__score">{{ entry.score }}</span>
+        </div>
+      }
+    </div>
+  }
+</div>

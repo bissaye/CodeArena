@@ -1,0 +1,219 @@
+<div class="auth-page">
+  <div class="auth-card auth-card--wide">
+    <div class="auth-card__header">
+      <a routerLink="/" class="auth-card__logo">
+        <span class="logo-dot">●</span> CodeArena
+      </a>
+      <h1 class="text-title">{{ 'AUTH.REGISTER.TITLE' | translate }}</h1>
+      <p class="auth-card__subtitle">{{ 'AUTH.REGISTER.SUBTITLE' | translate }}</p>
+    </div>
+
+    @if (success) {
+      <div class="form-success-banner" role="status">
+        {{ 'AUTH.REGISTER.SUCCESS' | translate }}
+      </div>
+    }
+
+    @if (error) {
+      <div class="form-error-banner" role="alert">
+        {{ error | translate }}
+      </div>
+    }
+
+    @if (!success) {
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- Pseudonyme -->
+        <div class="form-group">
+          <label class="form-label" for="username">
+            {{ 'AUTH.REGISTER.USERNAME_LABEL' | translate }}
+            <span class="form-required">*</span>
+          </label>
+          <input
+            id="username"
+            type="text"
+            class="form-input"
+            [class.form-input--error]="f.username.invalid && f.username.touched"
+            formControlName="username"
+            [placeholder]="'AUTH.REGISTER.USERNAME_PLACEHOLDER' | translate"
+            autocomplete="username"
+          />
+          @if (f.username.touched) {
+            @if (f.username.hasError('required')) {
+              <span class="form-hint form-hint--error">{{ 'AUTH.VALIDATION.REQUIRED' | translate }}</span>
+            } @else if (f.username.hasError('minlength') || f.username.hasError('maxlength') || f.username.hasError('pattern')) {
+              <span class="form-hint form-hint--error">{{ 'AUTH.VALIDATION.USERNAME_FORMAT' | translate }}</span>
+            }
+          }
+        </div>
+
+        <!-- Mot de passe -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="password">
+              {{ 'AUTH.REGISTER.PASSWORD_LABEL' | translate }}
+              <span class="form-required">*</span>
+            </label>
+            <input
+              id="password"
+              type="password"
+              class="form-input"
+              [class.form-input--error]="f.password.invalid && f.password.touched"
+              formControlName="password"
+              [placeholder]="'AUTH.REGISTER.PASSWORD_PLACEHOLDER' | translate"
+              autocomplete="new-password"
+            />
+            @if (f.password.touched && f.password.hasError('minlength')) {
+              <span class="form-hint form-hint--error">{{ 'AUTH.VALIDATION.PASSWORD_MIN' | translate }}</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="confirmPassword">
+              {{ 'AUTH.REGISTER.CONFIRM_PASSWORD_LABEL' | translate }}
+              <span class="form-required">*</span>
+            </label>
+            <input
+              id="confirmPassword"
+              type="password"
+              class="form-input"
+              [class.form-input--error]="form.hasError('passwordsMismatch') && f.confirmPassword.touched"
+              formControlName="confirmPassword"
+              [placeholder]="'AUTH.REGISTER.CONFIRM_PASSWORD_PLACEHOLDER' | translate"
+              autocomplete="new-password"
+            />
+            @if (form.hasError('passwordsMismatch') && f.confirmPassword.touched) {
+              <span class="form-hint form-hint--error">{{ 'AUTH.VALIDATION.PASSWORDS_MISMATCH' | translate }}</span>
+            }
+          </div>
+        </div>
+
+        <!-- Pays (obligatoire) -->
+        <div class="form-group">
+          <label class="form-label" for="country">
+            {{ 'AUTH.REGISTER.COUNTRY_LABEL' | translate }}
+            <span class="form-required">*</span>
+          </label>
+          <select
+            id="country"
+            class="form-input form-select"
+            [class.form-input--error]="f.country.invalid && f.country.touched"
+            formControlName="country"
+          >
+            <option value="" disabled>{{ 'AUTH.REGISTER.COUNTRY_PLACEHOLDER' | translate }}</option>
+            @for (country of countries; track country.code) {
+              <option [value]="country.nameFr">{{ country.nameFr }}</option>
+            }
+          </select>
+          @if (f.country.invalid && f.country.touched) {
+            <span class="form-hint form-hint--error">{{ 'AUTH.VALIDATION.REQUIRED' | translate }}</span>
+          }
+        </div>
+
+        <!-- Email (optionnel) -->
+        <div class="form-group">
+          <label class="form-label" for="email">
+            {{ 'AUTH.REGISTER.EMAIL_LABEL' | translate }}
+          </label>
+          <input
+            id="email"
+            type="email"
+            class="form-input"
+            [class.form-input--error]="f.email.invalid && f.email.touched"
+            formControlName="email"
+            [placeholder]="'AUTH.REGISTER.EMAIL_PLACEHOLDER' | translate"
+            autocomplete="email"
+          />
+          @if (f.email.invalid && f.email.touched) {
+            <span class="form-hint form-hint--error">{{ 'AUTH.VALIDATION.EMAIL_FORMAT' | translate }}</span>
+          }
+        </div>
+
+        <!-- Téléphone + Région -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="phoneNumber">
+              {{ 'AUTH.REGISTER.PHONE_LABEL' | translate }}
+            </label>
+            <input
+              id="phoneNumber"
+              type="tel"
+              class="form-input"
+              formControlName="phoneNumber"
+              [placeholder]="'AUTH.REGISTER.PHONE_PLACEHOLDER' | translate"
+              autocomplete="tel"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="region">
+              {{ 'AUTH.REGISTER.REGION_LABEL' | translate }}
+            </label>
+            <input
+              id="region"
+              type="text"
+              class="form-input"
+              formControlName="region"
+              list="register-regions-list"
+              [placeholder]="'AUTH.REGISTER.REGION_PLACEHOLDER' | translate"
+            />
+            <datalist id="register-regions-list">
+              @for (r of cameroonRegions; track r) {
+                <option [value]="r">
+              }
+            </datalist>
+          </div>
+        </div>
+
+        <!-- École -->
+        <div class="form-group">
+          <label class="form-label" for="school">
+            {{ 'AUTH.REGISTER.SCHOOL_LABEL' | translate }}
+          </label>
+          <input
+            id="school"
+            type="text"
+            class="form-input"
+            formControlName="school"
+            list="register-schools-list"
+            [placeholder]="'AUTH.REGISTER.SCHOOL_PLACEHOLDER' | translate"
+          />
+          <datalist id="register-schools-list">
+            @for (s of schoolSuggestions; track s) {
+              <option [value]="s">
+            }
+          </datalist>
+        </div>
+
+        <!-- CGU -->
+        <div class="form-group form-group--checkbox">
+          <label class="form-checkbox-label">
+            <input type="checkbox" formControlName="acceptCgu" class="form-checkbox" />
+            <span>{{ 'AUTH.REGISTER.CGU_LABEL' | translate }}</span>
+          </label>
+          @if (f.acceptCgu.invalid && f.acceptCgu.touched) {
+            <span class="form-hint form-hint--error">{{ 'AUTH.VALIDATION.CGU_REQUIRED' | translate }}</span>
+          }
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary btn--full"
+          [disabled]="isLoading"
+        >
+          @if (isLoading) {
+            <span class="btn__spinner"></span>
+          }
+          {{ (isLoading ? 'AUTH.REGISTER.LOADING' : 'AUTH.REGISTER.SUBMIT') | translate }}
+        </button>
+      </form>
+    }
+
+    <p class="auth-card__footer">
+      {{ 'AUTH.REGISTER.ALREADY_ACCOUNT' | translate }}
+      <a routerLink="/login" class="auth-card__link">
+        {{ 'AUTH.REGISTER.LOGIN_LINK' | translate }}
+      </a>
+    </p>
+  </div>
+</div>

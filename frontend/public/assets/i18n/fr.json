@@ -1,0 +1,360 @@
+{
+  "APP": {
+    "TITLE": "CodeArena Cameroun",
+    "TAGLINE": "La plateforme de compétition de programmation du Cameroun"
+  },
+  "NAV": {
+    "HOME": "Accueil",
+    "COMPETITIONS": "Compétitions",
+    "LEADERBOARD": "Classement",
+    "LOGIN": "Connexion",
+    "REGISTER": "Inscription",
+    "PROFILE": "Mon profil",
+    "LOGOUT": "Déconnexion"
+  },
+  "AUTH": {
+    "LOGIN": {
+      "TITLE": "Connexion",
+      "SUBTITLE": "Connectez-vous à votre compte",
+      "USERNAME_LABEL": "Pseudonyme",
+      "USERNAME_PLACEHOLDER": "Votre pseudonyme",
+      "PASSWORD_LABEL": "Mot de passe",
+      "PASSWORD_PLACEHOLDER": "Votre mot de passe",
+      "SUBMIT": "Se connecter",
+      "LOADING": "Connexion en cours…",
+      "ERROR_INVALID": "Identifiants incorrects. Vérifiez votre pseudonyme et votre mot de passe.",
+      "ERROR_GENERIC": "Une erreur est survenue. Veuillez réessayer.",
+      "NO_ACCOUNT": "Pas encore de compte ?",
+      "REGISTER_LINK": "S'inscrire"
+    },
+    "REGISTER": {
+      "TITLE": "Créer un compte",
+      "SUBTITLE": "Rejoignez la communauté CodeArena",
+      "USERNAME_LABEL": "Pseudonyme",
+      "USERNAME_PLACEHOLDER": "3 à 30 caractères (lettres, chiffres, tirets)",
+      "PASSWORD_LABEL": "Mot de passe",
+      "PASSWORD_PLACEHOLDER": "Minimum 8 caractères",
+      "CONFIRM_PASSWORD_LABEL": "Confirmer le mot de passe",
+      "CONFIRM_PASSWORD_PLACEHOLDER": "Répétez votre mot de passe",
+      "EMAIL_LABEL": "Email (optionnel)",
+      "EMAIL_PLACEHOLDER": "votre@email.com",
+      "PHONE_LABEL": "Téléphone (optionnel)",
+      "PHONE_PLACEHOLDER": "+237 6XX XXX XXX",
+      "COUNTRY_LABEL": "Pays",
+      "COUNTRY_PLACEHOLDER": "Sélectionnez votre pays",
+      "REGION_LABEL": "Région (optionnel)",
+      "REGION_PLACEHOLDER": "Votre région",
+      "SCHOOL_LABEL": "École / Université (optionnel)",
+      "SCHOOL_PLACEHOLDER": "Votre établissement",
+      "CGU_LABEL": "J'accepte les conditions générales d'utilisation",
+      "SUBMIT": "Créer mon compte",
+      "LOADING": "Création du compte…",
+      "SUCCESS": "Compte créé avec succès ! Vous pouvez maintenant vous connecter.",
+      "ERROR_USERNAME_TAKEN": "Ce pseudonyme est déjà utilisé.",
+      "ERROR_EMAIL_TAKEN": "Cet email est déjà associé à un compte.",
+      "ERROR_GENERIC": "Une erreur est survenue. Veuillez réessayer.",
+      "ALREADY_ACCOUNT": "Déjà un compte ?",
+      "LOGIN_LINK": "Se connecter"
+    },
+    "VALIDATION": {
+      "REQUIRED": "Ce champ est obligatoire.",
+      "USERNAME_FORMAT": "3 à 30 caractères : lettres, chiffres et tirets uniquement.",
+      "PASSWORD_MIN": "Le mot de passe doit contenir au moins 8 caractères.",
+      "PASSWORDS_MISMATCH": "Les mots de passe ne correspondent pas.",
+      "EMAIL_FORMAT": "Adresse email invalide.",
+      "CGU_REQUIRED": "Vous devez accepter les CGU pour continuer."
+    }
+  },
+  "ERRORS": {
+    "NOT_FOUND": "Page introuvable",
+    "FORBIDDEN": "Accès refusé",
+    "SERVER": "Erreur serveur. Veuillez réessayer plus tard."
+  },
+  "common": {
+    "loading": "Chargement…",
+    "back": "Retour",
+    "backHome": "Retour à l'accueil",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "retry": "Réessayer",
+    "prev_page": "Page précédente",
+    "next_page": "Page suivante"
+  },
+  "home": {
+    "hero": {
+      "title": "CodeArena Cameroun",
+      "subtitle": "La plateforme de compétition algorithmique ouverte à tous les programmeurs camerounais."
+    },
+    "section": {
+      "ongoing": "Compétitions en cours",
+      "upcoming": "À venir",
+      "finished": "Compétitions passées",
+      "seeAll": "Voir toutes →"
+    },
+    "empty": {
+      "finished": "Aucune compétition passée",
+      "finishedSub": "Les prochaines compétitions termineront ici.",
+      "noCompetitions": "Aucune compétition pour l'instant",
+      "noCompetitionsSub": "Les compétitions seront annoncées prochainement. Revenez bientôt !"
+    },
+    "leaderboard": {
+      "title": "Top programmeurs",
+      "seeAll": "Voir le classement complet"
+    },
+    "hero_competition": {
+      "badge": "En direct",
+      "cta": "Participer maintenant"
+    },
+    "error": {
+      "loadCompetitions": "Impossible de charger les compétitions. Veuillez réessayer."
+    }
+  },
+  "competitions": {
+    "title": "Toutes les compétitions",
+    "search": "Rechercher une compétition",
+    "search_placeholder": "Rechercher une compétition…",
+    "empty": "Aucune compétition trouvée.",
+    "showing": "Affichage",
+    "of": "sur",
+    "col": {
+      "name": "Nom",
+      "status": "Statut",
+      "startDate": "Début",
+      "endDate": "Fin",
+      "problems": "Exercices"
+    },
+    "error": {
+      "load": "Impossible de charger les compétitions. Veuillez réessayer."
+    }
+  },
+  "competition": {
+    "status": {
+      "draft": "Brouillon",
+      "upcoming": "À venir",
+      "ongoing": "En cours",
+      "finished": "Terminée"
+    },
+    "endsIn": "Se termine dans",
+    "startsIn": "Démarre dans",
+    "error": {
+      "load": "Impossible de charger la compétition.",
+      "notFound": "Compétition introuvable."
+    },
+    "problems": {
+      "label": "exercice(s)",
+      "title": "Exercices",
+      "empty": "Aucun exercice disponible",
+      "emptySub": "Les exercices seront ajoutés avant le début de la compétition.",
+      "colTitle": "Titre",
+      "colPoints": "Points",
+      "colSubmissions": "Soumissions",
+      "colAC": "Acceptées",
+      "colRate": "Taux",
+      "solved": "Résolu"
+    },
+    "leaderboard": {
+      "title": "Classement — Top 10",
+      "seeAll": "Voir le classement complet"
+    }
+  },
+  "leaderboard": {
+    "title": "Classement global",
+    "empty": "Aucun participant ne correspond aux filtres.",
+    "refreshed_at": "Mis à jour à",
+    "programmers": "programmeur(s)",
+    "showing": "Affichage",
+    "of": "sur",
+    "col": {
+      "rank": "Rang",
+      "user": "Utilisateur",
+      "country": "Pays",
+      "region": "Région",
+      "score": "Score"
+    },
+    "filter": {
+      "search": "Recherche pseudo",
+      "search_placeholder": "Entrez un pseudo…",
+      "country": "Pays",
+      "all_countries": "Tous les pays",
+      "region": "Région",
+      "region_placeholder": "Sélectionnez une région…",
+      "school": "École",
+      "school_placeholder": "Rechercher un établissement…",
+      "competition": "Compétition",
+      "all_competitions": "Toutes les compétitions",
+      "score_range": "Intervalle de score",
+      "competition_only": "Scores compétitions uniquement",
+      "competition_only_tooltip": "Exclut les scores obtenus dans les compétitions passées utilisées en mode entraînement",
+      "apply": "Appliquer",
+      "reset": "Réinitialiser"
+    },
+    "error": {
+      "generic": "Impossible de charger le classement. Veuillez réessayer."
+    }
+  },
+  "profile": {
+    "total_score": "Score total",
+    "competition_score": "Score compétitions",
+    "national_rank": "Rang national",
+    "member_since": "Membre depuis",
+    "change_avatar": "Changer d'avatar",
+    "save_avatar": "Enregistrer l'avatar",
+    "edit_profile": "Modifier mon profil",
+    "admin_link": "Administration",
+    "change_password": "Changer mon mot de passe",
+    "save_success": "Profil mis à jour avec succès.",
+    "password_success": "Mot de passe changé avec succès.",
+    "country": "Pays",
+    "region": "Région",
+    "region_placeholder": "Sélectionnez ou saisissez votre région",
+    "school": "École / Université",
+    "school_placeholder": "Sélectionnez ou saisissez votre établissement",
+    "current_password": "Mot de passe actuel",
+    "new_password": "Nouveau mot de passe",
+    "confirm_password": "Confirmer le nouveau mot de passe",
+    "recent_activity": "Activité récente",
+    "no_activity": "Aucune activité pour l'instant.",
+    "activity": {
+      "problem": "Exercice",
+      "competition": "Compétition",
+      "status": "Statut",
+      "date": "Date"
+    },
+    "error": {
+      "not_found": "Profil introuvable.",
+      "generic": "Impossible de charger le profil.",
+      "save_failed": "Erreur lors de la sauvegarde.",
+      "avatar_failed": "Erreur lors de l'upload de l'avatar.",
+      "password_failed": "Erreur lors du changement de mot de passe.",
+      "passwords_mismatch": "Les mots de passe ne correspondent pas."
+    }
+  },
+  "problem": {
+    "stats": {
+      "total": "Soumissions",
+      "accepted": "Acceptées",
+      "rate": "Taux"
+    },
+    "download": "Télécharger input.txt",
+    "submit": {
+      "title": "Soumettre votre solution",
+      "resultLabel": "Fichier résultat (result.txt)",
+      "resultHint": "Fichier .txt uniquement, max 5 Mo",
+      "sourceLabel": "Code source (optionnel)",
+      "sourceHint": "Formats : .c .cpp .py .java .js — max 5 Mo",
+      "btn": "Soumettre",
+      "judging": "Jugement en cours…",
+      "alreadySolved": "Vous avez déjà résolu cet exercice.",
+      "notOngoing": "Les soumissions sont acceptées uniquement pendant la compétition.",
+      "wrong": "Wrong Answer ✗ — Vérifiez les espaces et retours à la ligne.",
+      "errorAlreadySolved": "Vous avez déjà résolu cet exercice.",
+      "errorInvalid": "Fichier invalide. Vérifiez le format.",
+      "errorGeneric": "Une erreur est survenue. Veuillez réessayer."
+    },
+    "history": {
+      "title": "Mes soumissions",
+      "empty": "Aucune soumission pour l'instant.",
+      "colDate": "Date",
+      "colStatus": "Statut",
+      "colFirst": "Premier AC",
+      "firstAC": "Premier Accepted sur ce problème"
+    },
+    "error": {
+      "notFound": "Exercice introuvable.",
+      "load": "Impossible de charger l'exercice."
+    }
+  },
+  "errors": {
+    "not_found": {
+      "title": "Page introuvable",
+      "message": "La page que vous recherchez n'existe pas ou a été déplacée."
+    },
+    "forbidden": {
+      "title": "Accès refusé",
+      "message": "Vous n'avez pas les autorisations nécessaires pour accéder à cette page."
+    }
+  },
+  "admin": {
+    "moderators": {
+      "title": "Gestion des modérateurs",
+      "subtitle": "Ajoutez ou retirez des modérateurs pour gérer les compétitions.",
+      "add_title": "Ajouter un modérateur",
+      "add_btn": "Ajouter",
+      "list_title": "Modérateurs actuels",
+      "empty": "Aucun modérateur",
+      "empty_sub": "Ajoutez des modérateurs pour qu'ils puissent créer des compétitions.",
+      "remove_btn": "Retirer",
+      "confirm_title": "Confirmer le retrait",
+      "confirm_body": "Êtes-vous sûr de vouloir retirer {{ username }} du rôle de modérateur ?",
+      "confirm_btn": "Retirer",
+      "col": {
+        "username": "Pseudo",
+        "promoted_at": "Date de nomination",
+        "actions": "Actions"
+      },
+      "field": {
+        "username": "Pseudonyme",
+        "username_placeholder": "Ex. : alice_yaounde"
+      },
+      "error": {
+        "load": "Impossible de charger la liste des modérateurs.",
+        "user_not_found": "Utilisateur introuvable.",
+        "already_moderator": "Cet utilisateur est déjà modérateur.",
+        "self_remove": "Vous ne pouvez pas vous retirer vous-même.",
+        "save": "Une erreur est survenue. Veuillez réessayer.",
+        "remove": "Erreur lors du retrait du modérateur."
+      }
+    },
+    "competition": {
+      "create_title": "Créer une compétition",
+      "edit_title": "Modifier la compétition",
+      "edit_btn": "Modifier",
+      "field": {
+        "name": "Nom de la compétition",
+        "name_placeholder": "Ex. : CodeArena Open 2026",
+        "start_date": "Date de début",
+        "start_time": "Heure de début",
+        "duration_hours": "Durée (heures)",
+        "duration_minutes": "Durée (minutes)",
+        "publish": "Publier immédiatement",
+        "publish_hint": "Cocher pour passer le statut à « À venir » (non modifiable après publication)."
+      },
+      "error": {
+        "name_required": "Le nom est obligatoire.",
+        "load": "Impossible de charger la compétition.",
+        "save": "Une erreur est survenue lors de la sauvegarde."
+      }
+    },
+    "problem": {
+      "create_title": "Ajouter un exercice",
+      "edit_title": "Modifier l'exercice",
+      "edit_btn": "Modifier l'exercice",
+      "add_btn": "Ajouter un exercice",
+      "show_preview": "Aperçu Markdown",
+      "hide_preview": "Masquer l'aperçu",
+      "preview_label": "Aperçu",
+      "output_private": "Privé",
+      "download_current_input": "Télécharger input.txt actuel",
+      "download_current_output": "Télécharger output.txt actuel",
+      "replace_input": "Remplacer le fichier input",
+      "replace_output": "Remplacer le fichier output",
+      "field": {
+        "title": "Titre",
+        "title_placeholder": "Ex. : Maximum de trois entiers",
+        "body": "Énoncé (Markdown)",
+        "body_placeholder": "## Description\n\n...",
+        "points": "Points",
+        "input_file": "Fichier input.txt",
+        "output_file": "Fichier output.txt (solution correcte)",
+        "txt_only": "Fichiers .txt uniquement, max 5 Mo."
+      },
+      "error": {
+        "title_required": "Le titre est obligatoire.",
+        "body_required": "L'énoncé est obligatoire.",
+        "files_required": "Les fichiers input et output sont obligatoires.",
+        "load": "Impossible de charger l'exercice.",
+        "save": "Une erreur est survenue lors de la sauvegarde."
+      }
+    }
+  }
+}
