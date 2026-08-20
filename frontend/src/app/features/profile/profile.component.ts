@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { UserService } from '../../core/services/user.service';
@@ -26,6 +26,7 @@ export class ProfileComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly toast = inject(ToastService);
+  private readonly translate = inject(TranslateService);
 
   // Page state
   isLoading = true;
@@ -126,12 +127,12 @@ export class ProfileComponent implements OnInit {
     this.authService.resendVerification().subscribe({
       next: () => {
         this.isResendingVerification = false;
-        this.toast.success('profile.verification_sent');
+        this.toast.success(this.translate.instant('profile.verification_sent'));
         this.cdr.markForCheck();
       },
       error: () => {
         this.isResendingVerification = false;
-        this.toast.error('profile.verification_error');
+        this.toast.error(this.translate.instant('profile.verification_error'));
         this.cdr.markForCheck();
       },
     });
