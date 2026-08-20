@@ -26,4 +26,5 @@ public class User
     public ICollection<UserProblemStatus> ProblemStatuses { get; set; } = [];
     public ICollection<EmailVerification> EmailVerifications { get; set; } = [];
     public ICollection<PasswordResetToken> PasswordResetTokens { get; set; } = [];
+    public ICollection<Notification> Notifications { get; set; } = [];
 }

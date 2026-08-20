@@ -1,0 +1,104 @@
+<div class="notif-page">
+  <div class="notif-page__header">
+    <h1 class="notif-page__title">{{ 'notifications.title' | translate }}</h1>
+
+    <div class="notif-page__controls">
+      <label class="notif-filter">
+        <input
+          type="checkbox"
+          [checked]="unreadOnly"
+          (change)="toggleUnreadOnly()"
+          aria-label="{{ 'notifications.unread_only' | translate }}"
+        />
+        {{ 'notifications.unread_only' | translate }}
+        @if (unreadCount > 0) {
+          <span class="notif-filter__count">{{ unreadCount }}</span>
+        }
+      </label>
+
+      @if (unreadCount > 0) {
+        <button
+          class="btn btn-secondary btn--sm"
+          (click)="markAllAsRead()"
+          [disabled]="isMarkingAll">
+          {{ 'notifications.mark_all_read' | translate }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (isLoading) {
+    <div class="notif-page__loading" role="status">
+      <div class="spinner"></div>
+      <span>{{ 'common.loading' | translate }}</span>
+    </div>
+  } @else if (error) {
+    <div class="notif-page__error" role="alert">
+      <p>{{ error | translate }}</p>
+      <button class="btn btn-secondary btn--sm" (click)="load()">
+        {{ 'common.retry' | translate }}
+      </button>
+    </div>
+  } @else if (notifications.length === 0) {
+    <div class="notif-page__empty">
+      <span class="notif-page__empty-icon" aria-hidden="true">🔔</span>
+      <p>{{ 'notifications.empty' | translate }}</p>
+    </div>
+  } @else {
+    <ul class="notif-list" role="list">
+      @for (notif of notifications; track notif.id) {
+        <li
+          class="notif-row"
+          [class.notif-row--unread]="!notif.isRead"
+          [class]="getTypeClass(notif.type)"
+          (click)="markAsRead(notif)">
+
+          <span class="notif-row__icon" aria-hidden="true">{{ getTypeIcon(notif.type) }}</span>
+
+          <div class="notif-row__content">
+            <p class="notif-row__title">{{ notif.title }}</p>
+            <p class="notif-row__body">{{ notif.body }}</p>
+            <time class="notif-row__time" [dateTime]="notif.createdAt">
+              {{ notif.createdAt | date:'dd/MM/yyyy HH:mm' }}
+            </time>
+          </div>
+
+          @if (!notif.isRead) {
+            <span class="notif-row__dot" aria-label="{{ 'notifications.unread_dot' | translate }}"></span>
+          }
+        </li>
+      }
+    </ul>
+
+    <!-- Pagination -->
+    @if (totalPages > 1) {
+      <nav class="pagination" aria-label="{{ 'notifications.pagination_label' | translate }}">
+        <button
+          class="pagination__btn"
+          [disabled]="currentPage === 1"
+          (click)="goToPage(currentPage - 1)"
+          [attr.aria-label]="'common.prev_page' | translate">
+          ‹
+        </button>
+
+        @for (p of pages(); track p) {
+          <button
+            class="pagination__btn"
+            [class.pagination__btn--active]="p === currentPage"
+            (click)="goToPage(p)"
+            [attr.aria-current]="p === currentPage ? 'page' : null">
+            {{ p }}
+          </button>
+        }
+
+        <button
+          class="pagination__btn"
+          [disabled]="currentPage === totalPages"
+          (click)="goToPage(currentPage + 1)"
+          [attr.aria-label]="'common.next_page' | translate">
+          ›
+        </button>
+      </nav>
+    }
+  }
+</div>

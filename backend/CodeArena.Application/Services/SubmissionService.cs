@@ -11,6 +11,7 @@ namespace CodeArena.Application.Services;
 public class SubmissionService(
     IAppDbContext db,
     IFileStorageService fileStorage,
+    INotificationService notificationService,
     ILogger<SubmissionService> logger) : ISubmissionService
 {
     public async Task<SubmitSolutionResult> SubmitAsync(
@@ -104,6 +105,9 @@ public class SubmissionService(
             "Submission {SubmissionId}: problem={ProblemId}, user={UserId}, status={Status}",
             submission.Id, problemId, userId, status);
 
+        // Fire-and-forget: notification créée après la transaction, ne bloque pas la réponse
+        _ = SendJudgmentNotificationAsync(userId, problem.Title, isAccepted, problem.Points);
+
         return isAccepted
             ? new SubmitSolutionResult("Accepted", $"Accepted ✓ — {problem.Points} points ajoutés à votre score", problem.Points)
             : new SubmitSolutionResult("Wrong", "Wrong Answer ✗ — Vérifiez les espaces et retours à la ligne", null);
@@ -117,6 +121,29 @@ public class SubmissionService(
             .OrderByDescending(s => s.SubmittedAt)
             .Select(s => new SubmissionDto(s.Id, s.SubmittedAt, s.Status.ToString(), s.IsFirstAccepted))
             .ToListAsync(ct);
+    }
+
+    private async Task SendJudgmentNotificationAsync(Guid userId, string problemTitle, bool isAccepted, int points)
+    {
+        try
+        {
+            if (isAccepted)
+                await notificationService.CreateAsync(
+                    userId,
+                    NotificationType.SubmissionAccepted,
+                    $"Accepted ✓ — {problemTitle}",
+                    $"Bonne réponse ! +{points} pts ajoutés à votre score.");
+            else
+                await notificationService.CreateAsync(
+                    userId,
+                    NotificationType.SubmissionWrong,
+                    $"Wrong Answer ✗ — {problemTitle}",
+                    "Vérifiez les espaces et retours à la ligne, puis réessayez.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to create judgment notification for user {UserId}", userId);
+        }
     }
 
     private static string Normalize(string content)
