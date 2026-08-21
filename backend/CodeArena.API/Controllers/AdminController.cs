@@ -1,6 +1,7 @@
 using CodeArena.Application.DTOs;
 using CodeArena.Application.Exceptions;
 using CodeArena.Application.Interfaces;
+using CodeArena.Infrastructure.Persistence;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,10 @@ namespace CodeArena.API.Controllers;
 [Authorize(Policy = "AdminOnly")]
 public class AdminController(
     IAdminService adminService,
-    IValidator<AddModeratorRequest> validator) : ControllerBase
+    IValidator<AddModeratorRequest> validator,
+    CodeArenaDbContext db,
+    IConfiguration configuration,
+    IWebHostEnvironment env) : ControllerBase
 {
     // GET /api/admin/moderators
     [HttpGet("moderators")]
@@ -38,6 +42,17 @@ public class AdminController(
         }
         catch (NotFoundException ex) { return NotFound(new { message = ex.Message }); }
         catch (ConflictException ex) { return Conflict(new { message = ex.Message }); }
+    }
+
+    // POST /api/admin/seed-demo — seed de données démo pour présentation client (exécutable une seule fois)
+    [HttpPost("seed-demo")]
+    public async Task<IActionResult> SeedDemo()
+    {
+        var uploadsPath = configuration["UPLOADS_PATH"]
+            ?? Path.Combine(env.ContentRootPath, "uploads");
+
+        await DemoSeeder.SeedDemoAsync(db, uploadsPath);
+        return Ok(new { message = "Données de démo seedées avec succès." });
     }
 
     // DELETE /api/admin/moderators/{userId}
