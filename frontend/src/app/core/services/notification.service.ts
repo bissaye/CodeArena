@@ -1,12 +1,19 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { NotificationDto, NotificationsPage } from '../models/notification.models';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   private readonly http = inject(HttpClient);
   private readonly apiBase = '/api/notifications';
+
+  private readonly refreshSubject = new Subject<void>();
+  readonly refresh$ = this.refreshSubject.asObservable();
+
+  triggerRefresh(): void {
+    this.refreshSubject.next();
+  }
 
   getNotifications(unreadOnly = false, page = 1): Observable<NotificationsPage> {
     return this.http.get<NotificationsPage>(this.apiBase, {
