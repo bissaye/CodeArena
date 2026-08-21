@@ -47,10 +47,10 @@ public class ProblemsController(
             return NotFound("Input file not found on server.");
         }
 
-        // Track download for speed-solver badge (authenticated users only)
+        // Track download for speed-solver badge (authenticated users only, awaited before streaming)
         var currentUserId = GetCurrentUserId();
         if (currentUserId.HasValue)
-            _ = badgeService.RecordInputDownloadAsync(currentUserId.Value, id, ct);
+            await badgeService.RecordInputDownloadAsync(currentUserId.Value, id, ct);
 
         var stream = System.IO.File.OpenRead(absolutePath);
         return File(stream, "text/plain", "input.txt");

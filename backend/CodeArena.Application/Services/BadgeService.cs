@@ -215,17 +215,20 @@ public class BadgeService(
 
         if (userScore == 0) return null;
 
-        // Count how many users scored strictly more
+        // Fetch all other users' scores in this competition (EF Core-translatable)
         var problemIds = await db.Problems
             .Where(p => p.CompetitionId == competitionId)
             .Select(p => p.Id)
             .ToListAsync(ct);
 
-        var higherScoreCount = await db.UserProblemStatuses
+        var otherScores = await db.UserProblemStatuses
             .Where(ups => ups.Solved && problemIds.Contains(ups.ProblemId) && ups.UserId != userId)
-            .GroupBy(ups => ups.UserId)
-            .Select(g => g.Join(db.Problems, ups => ups.ProblemId, p => p.Id, (ups, p) => p.Points).Sum())
-            .CountAsync(score => score > userScore, ct);
+            .Join(db.Problems, ups => ups.ProblemId, p => p.Id, (ups, p) => new { ups.UserId, p.Points })
+            .GroupBy(x => x.UserId)
+            .Select(g => g.Sum(x => x.Points))
+            .ToListAsync(ct);
+
+        var higherScoreCount = otherScores.Count(s => s > userScore);
 
         return higherScoreCount + 1;
     }
