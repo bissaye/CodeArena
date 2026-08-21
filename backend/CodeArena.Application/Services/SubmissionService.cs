@@ -4,6 +4,7 @@ using CodeArena.Application.Interfaces;
 using CodeArena.Domain.Entities;
 using CodeArena.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace CodeArena.Application.Services;
@@ -11,7 +12,7 @@ namespace CodeArena.Application.Services;
 public class SubmissionService(
     IAppDbContext db,
     IFileStorageService fileStorage,
-    INotificationService notificationService,
+    IServiceScopeFactory scopeFactory,
     ILogger<SubmissionService> logger) : ISubmissionService
 {
     public async Task<SubmitSolutionResult> SubmitAsync(
@@ -105,8 +106,10 @@ public class SubmissionService(
             "Submission {SubmissionId}: problem={ProblemId}, user={UserId}, status={Status}",
             submission.Id, problemId, userId, status);
 
-        // Fire-and-forget: notification créée après la transaction, ne bloque pas la réponse
-        _ = SendJudgmentNotificationAsync(userId, problem.Title, isAccepted, problem.Points);
+        // Fire-and-forget in its own scope — the request scope may be disposed before this completes
+        var problemTitle = problem.Title;
+        var points = problem.Points;
+        _ = SendJudgmentNotificationAsync(userId, problemTitle, isAccepted, points);
 
         return isAccepted
             ? new SubmitSolutionResult("Accepted", $"Accepted ✓ — {problem.Points} points ajoutés à votre score", problem.Points)
@@ -127,6 +130,10 @@ public class SubmissionService(
     {
         try
         {
+            // Own scope — request scope may already be disposed when this runs
+            await using var scope = scopeFactory.CreateAsyncScope();
+            var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+
             if (isAccepted)
                 await notificationService.CreateAsync(
                     userId,
