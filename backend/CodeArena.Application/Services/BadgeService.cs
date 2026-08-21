@@ -34,7 +34,7 @@ public class BadgeService(
                 BadgeCondition.Top10Competition  => await CheckTop10CompetitionAsync(userId, ct),
                 BadgeCondition.Top3National      => await CheckTop3NationalAsync(userId, ct),
                 BadgeCondition.Centurion         => await CheckCenturionAsync(userId, ct),
-                BadgeCondition.Mentor            => false, // Triggered via mentor check only
+                BadgeCondition.Mentor            => await CheckMentorAsync(userId, ct),
                 _                                => false
             };
 
@@ -149,13 +149,21 @@ public class BadgeService(
 
     private async Task<bool> CheckTop10CompetitionAsync(Guid userId, CancellationToken ct)
     {
-        // Check across all finished competitions whether user is in top 10
-        var competitions = await db.Competitions
-            .Where(c => c.Status == CompetitionStatus.Finished)
+        // Limit to competitions where user has at least one Accepted submission
+        var competitionIdsWithAccepted = await db.Submissions
+            .Where(s => s.UserId == userId && s.Status == SubmissionStatus.Accepted)
+            .Join(db.Problems, s => s.ProblemId, p => p.Id, (s, p) => p.CompetitionId)
+            .Distinct()
+            .ToListAsync(ct);
+
+        if (competitionIdsWithAccepted.Count == 0) return false;
+
+        var finishedCompetitionIds = await db.Competitions
+            .Where(c => competitionIdsWithAccepted.Contains(c.Id) && c.Status == CompetitionStatus.Finished)
             .Select(c => c.Id)
             .ToListAsync(ct);
 
-        foreach (var compId in competitions)
+        foreach (var compId in finishedCompetitionIds)
         {
             var rank = await GetUserRankInCompetitionAsync(userId, compId, ct);
             if (rank is >= 1 and <= 10)

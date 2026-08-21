@@ -29,6 +29,8 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
 
   private pollingId?: ReturnType<typeof setInterval>;
   private refreshSub?: Subscription;
+  private knownNotifIds = new Set<string>();
+  private initialized = false;
 
   get unreadCount(): number {
     return this.page?.unreadCount ?? 0;
@@ -69,6 +71,7 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   loadNotifications(): void {
     this.notifService.getNotifications(false, 1).subscribe({
       next: (data) => {
+        this.detectNewBadgeNotifications(data.items);
         this.page = data;
         this.error = null;
         this.cdr.markForCheck();
@@ -116,6 +119,7 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
       case 'SubmissionWrong':      return 'notif-item--wrong';
       case 'CompetitionStarting':  return 'notif-item--starting';
       case 'CompetitionStarted':   return 'notif-item--started';
+      case 'BadgeEarned':          return 'notif-item--badge';
       default: return '';
     }
   }
@@ -126,7 +130,26 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
       case 'SubmissionWrong':      return '✗';
       case 'CompetitionStarting':  return '⏱';
       case 'CompetitionStarted':   return '🏁';
+      case 'BadgeEarned':          return '🏅';
       default: return '●';
+    }
+  }
+
+  private detectNewBadgeNotifications(items: NotificationDto[]): void {
+    if (!this.initialized) {
+      items.forEach(n => this.knownNotifIds.add(n.id));
+      this.initialized = true;
+      return;
+    }
+
+    const hasNewBadge = items.some(
+      n => n.type === 'BadgeEarned' && !this.knownNotifIds.has(n.id)
+    );
+
+    items.forEach(n => this.knownNotifIds.add(n.id));
+
+    if (hasNewBadge) {
+      this.notifService.announceBadgeEarned();
     }
   }
 }

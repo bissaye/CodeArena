@@ -1,5 +1,7 @@
-.logo-dot {
-  color: var(--color-primary-light);
+.header__logo-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
 }
 
 .header__lang {

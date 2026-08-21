@@ -24,5 +24,8 @@ public class SubmissionConfiguration : IEntityTypeConfiguration<Submission>
             .WithMany(u => u.Submissions)
             .HasForeignKey(s => s.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(s => new { s.ProblemId, s.UserId, s.Status });
+        builder.HasIndex(s => new { s.UserId, s.Status });
     }
 }

@@ -1,6 +1,6 @@
 export interface NotificationDto {
   id: string;
-  type: 'SubmissionAccepted' | 'SubmissionWrong' | 'CompetitionStarting' | 'CompetitionStarted';
+  type: 'SubmissionAccepted' | 'SubmissionWrong' | 'CompetitionStarting' | 'CompetitionStarted' | 'BadgeEarned';
   title: string;
   body: string;
   isRead: boolean;
