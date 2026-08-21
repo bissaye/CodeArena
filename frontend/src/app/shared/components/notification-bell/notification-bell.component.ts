@@ -6,6 +6,7 @@ import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
+import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { NotificationDto, NotificationsPage } from '../../../core/models/notification.models';
 
@@ -19,6 +20,7 @@ import { NotificationDto, NotificationsPage } from '../../../core/models/notific
 })
 export class NotificationBellComponent implements OnInit, OnDestroy {
   private readonly notifService = inject(NotificationService);
+  private readonly authService = inject(AuthService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   isOpen = false;
@@ -27,10 +29,7 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   error: string | null = null;
   page: NotificationsPage | null = null;
 
-  private pollingId?: ReturnType<typeof setInterval>;
   private refreshSub?: Subscription;
-  private knownNotifIds = new Set<string>();
-  private initialized = false;
 
   get unreadCount(): number {
     return this.page?.unreadCount ?? 0;
@@ -42,13 +41,21 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadNotifications();
-    this.pollingId = setInterval(() => this.loadNotifications(), 10_000);
-    this.refreshSub = this.notifService.refresh$.subscribe(() => this.loadNotifications());
+
+    // Start SignalR connection if authenticated — replaces polling
+    if (this.authService.isAuthenticated()) {
+      this.notifService.startConnection();
+    }
+
+    // refresh$ fires on every SignalR ReceiveNotification event (and on triggerRefresh() calls)
+    this.refreshSub = this.notifService.refresh$.subscribe(() => {
+      this.loadNotifications();
+    });
   }
 
   ngOnDestroy(): void {
-    if (this.pollingId) clearInterval(this.pollingId);
     this.refreshSub?.unsubscribe();
+    // Do not stop the connection here — service is a singleton and other components may use it
   }
 
   @HostListener('document:click', ['$event'])
@@ -71,7 +78,6 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   loadNotifications(): void {
     this.notifService.getNotifications(false, 1).subscribe({
       next: (data) => {
-        this.detectNewBadgeNotifications(data.items);
         this.page = data;
         this.error = null;
         this.cdr.markForCheck();
@@ -132,24 +138,6 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
       case 'CompetitionStarted':   return '🏁';
       case 'BadgeEarned':          return '🏅';
       default: return '●';
-    }
-  }
-
-  private detectNewBadgeNotifications(items: NotificationDto[]): void {
-    if (!this.initialized) {
-      items.forEach(n => this.knownNotifIds.add(n.id));
-      this.initialized = true;
-      return;
-    }
-
-    const hasNewBadge = items.some(
-      n => n.type === 'BadgeEarned' && !this.knownNotifIds.has(n.id)
-    );
-
-    items.forEach(n => this.knownNotifIds.add(n.id));
-
-    if (hasNewBadge) {
-      this.notifService.announceBadgeEarned();
     }
   }
 }

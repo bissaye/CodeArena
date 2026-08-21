@@ -1,7 +1,12 @@
 using System.Text;
+using CodeArena.API.HostedServices;
+using CodeArena.API.Hubs;
 using CodeArena.Application;
 using CodeArena.Infrastructure;
+using CodeArena.Infrastructure.Jobs;
 using CodeArena.Infrastructure.Persistence;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -12,7 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Application (services, validators)
 builder.Services.AddApplication();
 
-// Infrastructure (EF Core + PostgreSQL + JwtService + PasswordHasher)
+// Infrastructure (EF Core + PostgreSQL + Redis + JwtService + PasswordHasher)
 builder.Services.AddInfrastructure(builder.Configuration);
 
 // Controllers
@@ -29,7 +34,7 @@ builder.Services.AddCors(options =>
               .AllowCredentials());
 });
 
-// JWT Authentication
+// JWT Authentication — with SignalR WebSocket support (token from query string)
 var jwtSecret = builder.Configuration["JWT_SECRET"]
     ?? throw new InvalidOperationException("JWT_SECRET is not configured.");
 var key = Encoding.UTF8.GetBytes(jwtSecret);
@@ -45,6 +50,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false,
             ClockSkew = TimeSpan.Zero
         };
+        // SignalR WebSocket connections cannot send an Authorization header — read token from query string
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                    context.Token = accessToken;
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization(options =>
@@ -55,7 +72,7 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("Admin"));
 });
 
-// Swagger / OpenAPI (Swashbuckle 10 + Microsoft.OpenApi 2.x)
+// Swagger / OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -81,10 +98,30 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Memory Cache (leaderboard)
-builder.Services.AddMemoryCache();
+// Hangfire (jobs enqueued by services are processed here and in the Worker)
+var pgConn = builder.Configuration.GetConnectionString("DefaultConnection")!;
+builder.Services.AddHangfire(config => config
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UsePostgreSqlStorage(options => options.UseNpgsqlConnection(pgConn)));
 
-// Multipart file upload limits (max 5 MB per file, 12 MB total)
+// Run Hangfire server in the API process (handles jobs if Worker is not running)
+builder.Services.AddHangfireServer(options =>
+{
+    options.WorkerCount = 3;
+    options.ServerName = "codearena-api";
+});
+
+// SignalR with Redis backplane (scale-out ready for multi-instance)
+var redisConn = builder.Configuration["REDIS_CONNECTION"] ?? "redis:6379";
+builder.Services.AddSignalR()
+    .AddStackExchangeRedis(redisConn);
+
+// Redis notification relay — subscribes to Redis pub/sub and pushes to connected SignalR clients
+builder.Services.AddHostedService<RedisNotificationRelay>();
+
+// File upload size limit
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
 {
     options.MultipartBodyLengthLimit = 12 * 1024 * 1024;
@@ -103,14 +140,18 @@ using (var scope = app.Services.CreateScope())
     await DbSeeder.SeedAsync(db, uploadsPath);
 }
 
-// Serve uploaded files (avatars, inputs) as static files at /uploads/*
-// Files are stored outside webroot — sécurité : GUID names, pas de path traversal
-var uploadsPhysicalPath = uploadsPath;
-if (Directory.Exists(uploadsPhysicalPath))
+// Register Hangfire recurring job (competition status transitions, every minute)
+RecurringJob.AddOrUpdate<CompetitionStatusJob>(
+    "competition-status-update",
+    job => job.ExecuteAsync(CancellationToken.None),
+    Cron.Minutely());
+
+// Serve uploaded files (avatars, inputs)
+if (Directory.Exists(uploadsPath))
 {
     app.UseStaticFiles(new StaticFileOptions
     {
-        FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsPhysicalPath),
+        FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsPath),
         RequestPath = "/uploads"
     });
 }
@@ -126,5 +167,15 @@ app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// SignalR hub endpoint
+app.MapHub<NotificationHub>("/hubs/notifications");
+
+// Hangfire dashboard — Admin only, internal use
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = [new HangfireAuthFilter()],
+    IgnoreAntiforgeryToken = true
+});
 
 app.Run();

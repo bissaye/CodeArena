@@ -1,0 +1,24 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+COPY CodeArena.Domain/CodeArena.Domain.csproj CodeArena.Domain/
+COPY CodeArena.Application/CodeArena.Application.csproj CodeArena.Application/
+COPY CodeArena.Infrastructure/CodeArena.Infrastructure.csproj CodeArena.Infrastructure/
+COPY CodeArena.Worker/CodeArena.Worker.csproj CodeArena.Worker/
+RUN dotnet restore CodeArena.Worker/CodeArena.Worker.csproj
+
+COPY . .
+RUN dotnet publish CodeArena.Worker/CodeArena.Worker.csproj -c Release -o /app/publish --no-restore
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+WORKDIR /app
+
+RUN mkdir -p /app/uploads
+
+COPY --from=build /app/publish .
+
+EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+ENTRYPOINT ["dotnet", "CodeArena.Worker.dll"]
