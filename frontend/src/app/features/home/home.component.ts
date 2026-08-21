@@ -1,8 +1,10 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CompetitionService } from '../../core/services/competition.service';
 import { LeaderboardService } from '../../core/services/leaderboard.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { CompetitionSummary } from '../../core/models/competition.models';
 import { LeaderboardEntry } from '../../core/models/leaderboard.models';
 import { CompetitionCardComponent } from '../../shared/components/competition-card/competition-card.component';
@@ -16,9 +18,10 @@ import { CountdownTimerComponent } from '../../shared/components/countdown-timer
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   private readonly competitionService = inject(CompetitionService);
   private readonly leaderboardService = inject(LeaderboardService);
+  private readonly notifService = inject(NotificationService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   isLoading = true;
@@ -30,6 +33,10 @@ export class HomeComponent implements OnInit {
 
   leaderboardEntries: LeaderboardEntry[] = [];
   leaderboardLoading = true;
+  highlightedUsername = '';
+
+  private lbSub?: Subscription;
+  private highlightTimeout?: ReturnType<typeof setTimeout>;
 
   ngOnInit(): void {
     this.competitionService.getAll().subscribe({
@@ -58,5 +65,26 @@ export class HomeComponent implements OnInit {
         this.cdr.markForCheck();
       }
     });
+
+    this.lbSub = this.notifService.leaderboardUpdate$.subscribe(evt => {
+      this.highlightedUsername = evt.username;
+      clearTimeout(this.highlightTimeout);
+      this.highlightTimeout = setTimeout(() => {
+        this.highlightedUsername = '';
+        this.cdr.markForCheck();
+      }, 2000);
+      this.leaderboardService.getMini(20).subscribe({
+        next: (entries) => {
+          this.leaderboardEntries = entries;
+          this.cdr.markForCheck();
+        },
+        error: () => {}
+      });
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.lbSub?.unsubscribe();
+    clearTimeout(this.highlightTimeout);
   }
 }

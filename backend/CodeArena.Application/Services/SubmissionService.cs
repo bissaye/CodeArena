@@ -114,8 +114,12 @@ public class SubmissionService(
             s.CreateAsync(userId, notifType, notifTitle, notifBody, CancellationToken.None));
 
         if (isAccepted)
+        {
             backgroundJobClient.Enqueue<IBadgeService>(s =>
                 s.CheckAndAwardBadgesAsync(userId, problemId, CancellationToken.None));
+            backgroundJobClient.Enqueue<ILeaderboardBroadcastService>(s =>
+                s.BroadcastUpdateAsync(userId, problem.CompetitionId, CancellationToken.None));
+        }
 
         return isAccepted
             ? new SubmitSolutionResult("Accepted", $"Accepted ✓ — {problem.Points} points ajoutés à votre score", problem.Points)

@@ -13,6 +13,7 @@ import { LeaderboardEntry } from '../../../core/models/leaderboard.models';
 export class LeaderboardMiniComponent {
   @Input({ required: true }) entries!: LeaderboardEntry[];
   @Input() title = '';
+  @Input() highlightUsername = '';
 
   getRankClass(rank: number): string {
     if (rank === 1) return 'rank-gold';

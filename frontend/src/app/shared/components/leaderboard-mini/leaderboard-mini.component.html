@@ -10,7 +10,7 @@
   } @else {
     <div class="leaderboard-mini__list">
       @for (entry of entries; track entry.userId) {
-        <div class="leaderboard-row">
+        <div class="leaderboard-row" [class.leaderboard-row--highlight]="entry.username === highlightUsername">
           <div class="leaderboard-row__rank-bar" [class]="getRankClass(entry.rank)"></div>
           <span class="leaderboard-row__rank">{{ entry.rank }}</span>
           <div class="leaderboard-row__avatar" [attr.aria-label]="entry.username">

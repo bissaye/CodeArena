@@ -45,7 +45,27 @@ public class RedisNotificationRelay(
                 }
             });
 
-        logger.LogInformation("RedisNotificationRelay started — subscribed to notifications:push:*");
+        await _subscriber.SubscribeAsync(
+            RedisChannel.Literal("leaderboard:updated"),
+            async (_, message) =>
+            {
+                if (!message.HasValue) return;
+
+                try
+                {
+                    var evt = JsonSerializer.Deserialize<LeaderboardUpdateEvent>(message.ToString(),
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    if (evt is not null)
+                        await hubContext.Clients.All.SendAsync("LeaderboardUpdated", evt);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error relaying leaderboard update from Redis to SignalR");
+                }
+            });
+
+        logger.LogInformation("RedisNotificationRelay started — subscribed to notifications:push:* and leaderboard:updated");
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)

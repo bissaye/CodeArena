@@ -1,6 +1,14 @@
 <div class="page-container">
   <div class="leaderboard-header">
-    <h1 class="page-title">{{ 'leaderboard.title' | translate }}</h1>
+    <div class="leaderboard-header__left">
+      <h1 class="page-title">{{ 'leaderboard.title' | translate }}</h1>
+      @if (isLive) {
+        <div class="live-indicator" aria-label="Live">
+          <span class="live-indicator__dot" aria-hidden="true"></span>
+          Live
+        </div>
+      }
+    </div>
     @if (page) {
       <p class="refresh-hint">
         {{ 'leaderboard.refreshed_at' | translate }} {{ page.refreshedAt | date:'HH:mm:ss' }}
@@ -127,7 +135,7 @@
           </thead>
           <tbody>
             @for (entry of page.entries; track entry.userId) {
-              <tr class="lb-row">
+              <tr class="lb-row" [class.lb-row--highlight]="entry.username === highlightedUsername">
                 <td class="col-rank">
                   <div class="rank-cell">
                     <div class="leaderboard-row__rank-bar" [class]="getRankClass(entry.rank)"></div>
