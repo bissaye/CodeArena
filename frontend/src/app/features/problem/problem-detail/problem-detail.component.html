@@ -114,7 +114,7 @@
               <div class="alert alert-error">{{ submitError | translate }}</div>
             }
 
-            <form (ngSubmit)="onSubmit()">
+            <form (submit)="$event.preventDefault(); onSubmit()">
               <!-- Result file -->
               <div class="form-group">
                 <label for="resultFile" class="form-label">
