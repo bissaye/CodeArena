@@ -2,7 +2,7 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, LowerCasePipe } from '@angular/common';
 import { LeaderboardService } from '../../core/services/leaderboard.service';
 import { CompetitionService } from '../../core/services/competition.service';
 import { UserService } from '../../core/services/user.service';
@@ -15,7 +15,7 @@ import { CountryFlagPipe } from '../../shared/pipes/country-flag.pipe';
 @Component({
   selector: 'app-leaderboard',
   standalone: true,
-  imports: [RouterLink, TranslatePipe, DatePipe, ReactiveFormsModule, CountryFlagPipe],
+  imports: [RouterLink, TranslatePipe, DatePipe, LowerCasePipe, ReactiveFormsModule, CountryFlagPipe],
   templateUrl: './leaderboard.component.html',
   styleUrl: './leaderboard.component.scss',
 })

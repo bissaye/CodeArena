@@ -111,6 +111,9 @@ public class SubmissionService(
         var points = problem.Points;
         _ = SendJudgmentNotificationAsync(userId, problemTitle, isAccepted, points);
 
+        if (isAccepted)
+            _ = CheckBadgesAsync(userId, problemId);
+
         return isAccepted
             ? new SubmitSolutionResult("Accepted", $"Accepted ✓ — {problem.Points} points ajoutés à votre score", problem.Points)
             : new SubmitSolutionResult("Wrong", "Wrong Answer ✗ — Vérifiez les espaces et retours à la ligne", null);
@@ -124,6 +127,20 @@ public class SubmissionService(
             .OrderByDescending(s => s.SubmittedAt)
             .Select(s => new SubmissionDto(s.Id, s.SubmittedAt, s.Status.ToString(), s.IsFirstAccepted))
             .ToListAsync(ct);
+    }
+
+    private async Task CheckBadgesAsync(Guid userId, Guid problemId)
+    {
+        try
+        {
+            await using var scope = scopeFactory.CreateAsyncScope();
+            var badgeService = scope.ServiceProvider.GetRequiredService<IBadgeService>();
+            await badgeService.CheckAndAwardBadgesAsync(userId, problemId);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to check badges for user {UserId}", userId);
+        }
     }
 
     private async Task SendJudgmentNotificationAsync(Guid userId, string problemTitle, bool isAccepted, int points)

@@ -7,9 +7,11 @@ public record UserProfileDto(
     string? Region,
     string? School,
     int TotalScore,
+    string Level,
     int CompetitionScore,
     int NationalRank,
     DateTime CreatedAt,
     DateTime? EmailVerifiedAt,
-    IReadOnlyList<UserActivityDto> RecentActivity
+    IReadOnlyList<UserActivityDto> RecentActivity,
+    IReadOnlyList<BadgeDto> Badges
 );

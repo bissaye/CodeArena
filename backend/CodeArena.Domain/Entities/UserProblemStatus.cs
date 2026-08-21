@@ -11,4 +11,5 @@ public class UserProblemStatus
     public bool Solved { get; set; } = false;
     public int AttemptCount { get; set; } = 0;
     public DateTime? LastAttemptAt { get; set; }
+    public DateTime? InputFirstDownloadedAt { get; set; }
 }

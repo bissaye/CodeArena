@@ -2,7 +2,7 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, LowerCasePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -15,7 +15,7 @@ import { CountryFlagPipe } from '../../shared/pipes/country-flag.pipe';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [RouterLink, TranslatePipe, DatePipe, ReactiveFormsModule, CountryFlagPipe],
+  imports: [RouterLink, TranslatePipe, DatePipe, LowerCasePipe, ReactiveFormsModule, CountryFlagPipe],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
 })
@@ -280,5 +280,13 @@ export class ProfileComponent implements OnInit {
     if (status === 'Accepted') return '✓ AC';
     if (status === 'Wrong') return '✗ WA';
     return '⏳';
+  }
+
+  getLevelProgress(): number {
+    const score = this.profile?.totalScore ?? 0;
+    if (score >= 1500) return 100;
+    if (score >= 500)  return 50 + ((score - 500) / 1000) * 50;
+    if (score >= 100)  return 10 + ((score - 100) / 400) * 40;
+    return (score / 100) * 10;
   }
 }

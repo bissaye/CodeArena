@@ -7,5 +7,6 @@ public record LeaderboardEntryDto(
     string? AvatarUrl,
     string Country,
     string? Region,
-    int Score
+    int Score,
+    string Level
 );

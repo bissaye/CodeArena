@@ -14,6 +14,7 @@ public class ProblemsController(
     IProblemService problemService,
     ISubmissionService submissionService,
     IFileStorageService fileStorage,
+    IBadgeService badgeService,
     IValidator<UpdateProblemRequest> updateProblemValidator,
     ILogger<ProblemsController> logger) : ControllerBase
 {
@@ -45,6 +46,11 @@ public class ProblemsController(
             logger.LogWarning("Input file not found on disk for problem {ProblemId}: {Path}", id, absolutePath);
             return NotFound("Input file not found on server.");
         }
+
+        // Track download for speed-solver badge (authenticated users only)
+        var currentUserId = GetCurrentUserId();
+        if (currentUserId.HasValue)
+            _ = badgeService.RecordInputDownloadAsync(currentUserId.Value, id, ct);
 
         var stream = System.IO.File.OpenRead(absolutePath);
         return File(stream, "text/plain", "input.txt");

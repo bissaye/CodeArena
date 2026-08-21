@@ -49,6 +49,13 @@ public class UserService(
                 x.s.SubmittedAt))
             .ToListAsync(ct);
 
+        // Badges earned by this user
+        var badges = await db.UserBadges
+            .Where(ub => ub.UserId == user.Id)
+            .Join(db.Badges, ub => ub.BadgeId, b => b.Id, (ub, b) => new BadgeDto(
+                b.Id, b.Slug, b.Name, b.Description, b.IconUrl, ub.EarnedAt))
+            .ToListAsync(ct);
+
         return new UserProfileDto(
             user.Username,
             user.AvatarUrl,
@@ -56,11 +63,13 @@ public class UserService(
             user.Region,
             user.School,
             user.TotalScore,
+            user.Level,
             competitionScore,
             nationalRank,
             user.CreatedAt,
             user.EmailVerifiedAt,
-            recentActivity);
+            recentActivity,
+            badges);
     }
 
     public async Task UpdateProfileAsync(

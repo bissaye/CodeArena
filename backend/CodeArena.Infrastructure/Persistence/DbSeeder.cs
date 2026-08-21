@@ -11,6 +11,9 @@ public static class DbSeeder
         // Always ensure seed files exist on disk (idempotent)
         await EnsureSeedFilesAsync(uploadsBasePath);
 
+        // Seed badges independently (idempotent)
+        await SeedBadgesAsync(db);
+
         if (await db.Users.AnyAsync())
             return;
 
@@ -123,6 +126,28 @@ public static class DbSeeder
                 CreatedAt = DateTime.UtcNow.AddDays(-1)
             }
         );
+
+        await db.SaveChangesAsync();
+    }
+
+    private static async Task SeedBadgesAsync(CodeArenaDbContext db)
+    {
+        var badges = new[]
+        {
+            new Badge { Id = Guid.Parse("10000000-0000-0000-0000-000000000001"), Slug = "first-ac",       Name = "Premier pas",      Description = "Obtenir votre première soumission acceptée.",                     IconUrl = "/assets/badges/first-ac.svg",       Condition = BadgeCondition.FirstAccepted  },
+            new Badge { Id = Guid.Parse("10000000-0000-0000-0000-000000000002"), Slug = "speed-solver",   Name = "Briseur de glace", Description = "Résoudre un exercice en moins de 30 minutes.",                    IconUrl = "/assets/badges/speed-solver.svg",   Condition = BadgeCondition.SpeedSolver    },
+            new Badge { Id = Guid.Parse("10000000-0000-0000-0000-000000000003"), Slug = "week-streak",    Name = "Régulier",         Description = "Soumettre au moins une solution 7 jours consécutifs.",            IconUrl = "/assets/badges/week-streak.svg",    Condition = BadgeCondition.WeekStreak     },
+            new Badge { Id = Guid.Parse("10000000-0000-0000-0000-000000000004"), Slug = "top-10",         Name = "Top 10",           Description = "Entrer dans le top 10 d'une compétition.",                        IconUrl = "/assets/badges/top-10.svg",         Condition = BadgeCondition.Top10Competition },
+            new Badge { Id = Guid.Parse("10000000-0000-0000-0000-000000000005"), Slug = "top-3-national", Name = "Top 3 national",   Description = "Atteindre le top 3 du classement de votre pays.",                 IconUrl = "/assets/badges/top-3-national.svg", Condition = BadgeCondition.Top3National   },
+            new Badge { Id = Guid.Parse("10000000-0000-0000-0000-000000000006"), Slug = "centurion",      Name = "Centurion",        Description = "Résoudre 100 exercices distincts.",                                IconUrl = "/assets/badges/centurion.svg",       Condition = BadgeCondition.Centurion      },
+            new Badge { Id = Guid.Parse("10000000-0000-0000-0000-000000000007"), Slug = "mentor",         Name = "Mentor",           Description = "Créer un exercice résolu par 50 participants différents.",         IconUrl = "/assets/badges/mentor.svg",         Condition = BadgeCondition.Mentor         },
+        };
+
+        foreach (var badge in badges)
+        {
+            if (!await db.Badges.AnyAsync(b => b.Slug == badge.Slug))
+                await db.Badges.AddAsync(badge);
+        }
 
         await db.SaveChangesAsync();
     }
