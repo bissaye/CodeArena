@@ -24,8 +24,7 @@ services:
       APP_URL: ${APP_URL}
 
   hangfire:
-    ports:
-      - "127.0.0.1:5001:8080"  # Dashboard accessible uniquement en local sur le VPS
+    ports: []  # Dashboard non exposé en prod — accès via: docker exec codearena-hangfire curl localhost:8080/hangfire
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
